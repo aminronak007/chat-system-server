@@ -5,7 +5,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       const payload = { user };
       const options = {
-        expiresIn: "1d",
+        expiresIn: "1m",
       };
       jwt.sign(payload, process.env.JWT_SECRET, options, (err, token) => {
         if (err) reject(err);
@@ -19,11 +19,14 @@ module.exports = {
 
     const authHeader = req.headers["authorization"];
     const token = authHeader;
-
     jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
       if (err) return res.json({ message: err });
       if (payload) {
-        req.user = payload;
+        const { _id, first_name, last_name, email, mobile, status } =
+          payload.user;
+        const user = { _id, first_name, last_name, email, mobile, status };
+
+        req.user = user;
         next();
       }
     });

@@ -10,4 +10,5 @@ module.exports = {
   NOT_EXISTS: (title) => `${title} does not exist.`,
   KEY: "Please provide a valid key.",
   CREDENTIALS_WRONG: "Your credentials are incorrect !",
+  NO_FOUND: (title) => `${title} are found.`,
 };

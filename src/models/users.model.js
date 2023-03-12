@@ -60,14 +60,8 @@ class UserModel {
       }
 
       const token = await signAccessToken(checkUserExists);
-      return token;
-    } catch (err) {
-      throw new Error(err);
-    }
-  }
 
-  async example($input) {
-    try {
+      return token;
     } catch (err) {
       throw new Error(err);
     }
@@ -120,6 +114,19 @@ class UserModel {
   }
 
   async deleteUser(input) {
+    try {
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+  async searchUser($input) {
+    try {
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async example($input) {
     try {
     } catch (err) {
       throw new Error(err);
