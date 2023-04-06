@@ -5,6 +5,7 @@ const globalVariablesFunction = require("./utils/global_vars_and_funcs");
 const dbConnection = require("./config/mongodb.config");
 const { socketConnection } = require("./config/socket.config");
 const expressValidator = require("express-validator");
+const path = require("path");
 
 globalVariablesFunction();
 dbConnection();
@@ -19,6 +20,7 @@ const corsOptions = {
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
+
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use("/uploads", express.static(__dirname.replace("/src", "") + "/uploads"));
@@ -37,10 +39,11 @@ const UserAdminRoutes = require("./routes/admin/users.routes");
 app.use("/api/v1/admin/users", UserAdminRoutes);
 // ------- Admin Routes -------
 
-app.use("/", express.static(__dirname.replace("/src", "") + "/Public"));
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname.replace("/src", ""), "Public/index.html"));
-// });
+app.use("/", express.static(__dirname.replace("/src", "") + "/public"));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname.replace("/src", ""), "public/index.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}.`);
 });
