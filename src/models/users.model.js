@@ -37,6 +37,7 @@ const UserSchema = mongoose.Schema(
 
 let User = mongoose.model("User", UserSchema);
 
+let user_fields = "first_name last_name email mobile status";
 class UserModel {
   constructor() {}
 
@@ -70,7 +71,7 @@ class UserModel {
   async checkUser(id) {
     try {
       const getUserDetails = await User.findOne({ _id: id })
-        .select("_id first_name last_name email mobile status")
+        .select(user_fields)
         .lean();
 
       return getUserDetails;
@@ -104,29 +105,66 @@ class UserModel {
     }
   }
 
-  async getUsers(input) {
+  async getUsers(id) {
     try {
+      const result = await User.find({ $ne: { _id: id } })
+        .select(user_fields)
+        .lean();
+
+      if (result.length > 0) {
+        return result;
+      }
+      return false;
     } catch (err) {
       throw new Error(err);
     }
   }
 
-  async getUserById(input) {
+  async getUserById(id) {
     try {
+      const result = await User.findOne({ _id: id }).lean();
+
+      if (result) {
+        return result;
+      }
+
+      return false;
     } catch (err) {
       throw new Error(err);
     }
   }
 
-  async editUser(input) {
+  async editUser(id, input) {
     try {
+      const data = {
+        first_name: input.first_name,
+        last_name: input.last_name,
+        email: input.email,
+        mobile: input.mobile,
+        status: input.status,
+      };
+
+      const result = await User.findOneAndUpdate({ _id: id }, { data }).exec();
+
+      if (result) {
+        return result;
+      }
+
+      return false;
     } catch (err) {
       throw new Error(err);
     }
   }
 
-  async deleteUser(input) {
+  async deleteUser(id) {
     try {
+      const result = await User.findOneAndDelete({ _id: id }).exec();
+
+      if (result) {
+        return result;
+      }
+
+      return false;
     } catch (err) {
       throw new Error(err);
     }
@@ -134,11 +172,17 @@ class UserModel {
 
   async searchUser(input, id) {
     try {
-      let regex = { $regex: `^${input}$`, $options: "i" };
+      let keyword = input.split(" ").join(""); // For removing whitespace or space
+
+      // let regex = { $regex: `^${input}$`, $options: "i" }; // For Specific Keyword Search
+      let regex = { $regex: `^${keyword}`, $options: "i" }; // For Partial Keyword Search
+
       const data = await User.find({
         _id: { $ne: id },
         $or: [{ first_name: regex }, { last_name: regex }, { email: regex }],
-      }).select("first_name last_name email");
+      })
+        .select("first_name last_name email")
+        .exec();
 
       if (data.length > 0) {
         return data;

@@ -6,10 +6,12 @@ const dbConnection = require("./config/mongodb.config");
 const { socketConnection } = require("./config/socket.config");
 const expressValidator = require("express-validator");
 const path = require("path");
+const SocketService = require("./services/socket.service");
 
 globalVariablesFunction();
 dbConnection();
 socketConnection();
+SocketService();
 
 const app = express();
 const PORT = vars.port;
