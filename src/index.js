@@ -38,9 +38,9 @@ app.use("/api/v1/admin/users", UserAdminRoutes);
 // ------- Admin Routes -------
 
 app.use("/", express.static(__dirname.replace("/src", "") + "/Public"));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname.replace("/src", ""), "Public/index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname.replace("/src", ""), "Public/index.html"));
+// });
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}.`);
 });

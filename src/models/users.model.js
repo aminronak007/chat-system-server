@@ -67,6 +67,18 @@ class UserModel {
     }
   }
 
+  async checkUser(id) {
+    try {
+      const getUserDetails = await User.findOne({ _id: id })
+        .select("_id first_name last_name email mobile status")
+        .lean();
+
+      return getUserDetails;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
   async createUser(input) {
     try {
       const { first_name, last_name, email, mobile, password } = input;

@@ -57,11 +57,13 @@ class AuthController {
     try {
       const { user } = req;
 
+      const result = await UserModel.checkUser(user._id);
+
       return successHandler(
         res,
         200,
         message.SUCCESS("User details found"),
-        user
+        result
       );
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
