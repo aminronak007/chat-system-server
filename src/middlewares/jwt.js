@@ -7,7 +7,7 @@ module.exports = {
       const options = {
         expiresIn: "1m",
       };
-      jwt.sign(payload, process.env.JWT_SECRET, options, (err, token) => {
+      jwt.sign(payload, process.env.JWT_SECRET, (err, token) => {
         if (err) reject(err);
         resolve(token);
       });

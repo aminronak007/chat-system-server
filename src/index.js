@@ -25,9 +25,11 @@ app.use("/uploads", express.static(__dirname.replace("/src", "") + "/uploads"));
 
 // ------- Front Routes -------
 const AuthRoutes = require("./routes/auth.routes");
+const UserRoutes = require("./routes/user.routes");
 
-app.use("/api/v1/auth", AuthRoutes);
 // ------- Front Routes -------
+app.use("/api/v1/auth", AuthRoutes);
+app.use("/api/v1/users", UserRoutes);
 
 // ------- Admin Routes -------
 const UserAdminRoutes = require("./routes/admin/users.routes");

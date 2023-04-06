@@ -119,8 +119,20 @@ class UserModel {
       throw new Error(err);
     }
   }
-  async searchUser($input) {
+
+  async searchUser(input, id) {
     try {
+      let regex = { $regex: `^${input}$`, $options: "i" };
+      const data = await User.find({
+        _id: { $ne: id },
+        $or: [{ first_name: regex }, { last_name: regex }, { email: regex }],
+      }).select("first_name last_name email");
+
+      if (data.length > 0) {
+        return data;
+      }
+
+      return false;
     } catch (err) {
       throw new Error(err);
     }

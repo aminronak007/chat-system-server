@@ -5,10 +5,12 @@ class UserController {
 
   async searchUser(req, res) {
     try {
-      const result = await UserModel.searchUser(req.params.search);
-
+      const result = await UserModel.searchUser(
+        req.params.search,
+        req.user._id
+      );
       if (!result) {
-        return errorHandler(res, 400, message.NO_FOUND("No users"), {});
+        return errorHandler(res, 200, message.NO_FOUND("No users"), {});
       }
 
       return successHandler(res, 200, message.SUCCESS("Users Found"), result);
