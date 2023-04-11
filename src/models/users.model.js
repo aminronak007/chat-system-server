@@ -31,13 +31,21 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    profile: {
+      type: String,
+      default: null,
+    },
+    last_conversation_id: {
+      type: mongoose.Types.ObjectId,
+    },
   },
   { timestamps: true }
 );
 
 let User = mongoose.model("User", UserSchema);
 
-let user_fields = "first_name last_name email mobile status";
+let user_fields =
+  "first_name last_name email mobile status profile last_conversation_id";
 class UserModel {
   constructor() {}
 
@@ -80,7 +88,7 @@ class UserModel {
     }
   }
 
-  async createUser(input) {
+  async createUser(input, file) {
     try {
       const { first_name, last_name, email, mobile, password } = input;
       let hashPassword = await bcrypt.hash(password, 10);
@@ -97,6 +105,7 @@ class UserModel {
         email,
         mobile,
         password: hashPassword,
+        profile: file.filename,
       }).save();
 
       return result;
@@ -122,7 +131,7 @@ class UserModel {
 
   async getUserById(id) {
     try {
-      const result = await User.findOne({ _id: id }).lean();
+      const result = await User.findOne({ _id: id }).select(user_fields).lean();
 
       if (result) {
         return result;
@@ -134,7 +143,7 @@ class UserModel {
     }
   }
 
-  async editUser(id, input) {
+  async editUser(id, input, file) {
     try {
       const data = {
         first_name: input.first_name,
@@ -142,9 +151,10 @@ class UserModel {
         email: input.email,
         mobile: input.mobile,
         status: input.status,
+        profile: file.filename,
       };
 
-      const result = await User.findOneAndUpdate({ _id: id }, { data }).exec();
+      const result = await User.findByIdAndUpdate({ _id: id }, data).exec();
 
       if (result) {
         return result;
@@ -170,22 +180,23 @@ class UserModel {
     }
   }
 
-  async searchUser(input, id) {
+  async searchUser(id, input) {
     try {
       let keyword = input.split(" ").join(""); // For removing whitespace or space
 
       // let regex = { $regex: `^${input}$`, $options: "i" }; // For Specific Keyword Search
       let regex = { $regex: `^${keyword}`, $options: "i" }; // For Partial Keyword Search
 
-      const data = await User.find({
+      const result = await User.find({
         _id: { $ne: id },
         $or: [{ first_name: regex }, { last_name: regex }, { email: regex }],
       })
-        .select("first_name last_name email")
+        .select("first_name last_name email profile")
         .exec();
 
-      if (data.length > 0) {
-        return data;
+      // console.log(result);
+      if (result.length > 0) {
+        return result;
       }
 
       return false;
@@ -194,7 +205,23 @@ class UserModel {
     }
   }
 
-  async example($input) {
+  async lastConversationId(id, user_id) {
+    try {
+      const result = await User.findOneAndUpdate(
+        { _id: id },
+        { last_conversation_id: user_id }
+      );
+
+      if (result) {
+        return true;
+      }
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async example(input) {
     try {
     } catch (err) {
       throw new Error(err);

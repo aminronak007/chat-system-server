@@ -25,7 +25,8 @@ const corsOptions = {
 
 app.use(express.json());
 app.use(cors(corsOptions));
-app.use("/uploads", express.static(__dirname.replace("/src", "") + "/uploads"));
+
+app.use("/public", express.static(__dirname + "/public"));
 
 // ------- Front Routes -------
 const AuthRoutes = require("./routes/auth.routes");

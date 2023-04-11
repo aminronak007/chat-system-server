@@ -42,7 +42,7 @@ class UserContoller {
       return errorHandler(res, 400, message.KEY, {});
     }
 
-    const result = await UserModel.createUser(req.body);
+    const result = await UserModel.createUser(req.body, req.file);
 
     if (result?.length > 0) {
       if (result[0]?.email === req.body.email) {
