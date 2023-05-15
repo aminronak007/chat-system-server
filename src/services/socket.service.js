@@ -28,9 +28,17 @@ const SocketService = () => {
     });
   };
 
+  const storeMessage = async (conversationId, message, senderId) => {};
+
   io.on("connection", (socket) => {
     // When Connect
     console.log("A user is connected.");
+    // Join a room
+    socket.on("join", (room) => {
+      socket.join(room);
+      console.log(`User joined room: ${room}`);
+    });
+
     // Take user id and socket id from user
     socket.on("addUser", (userId) => {
       addUser(userId, socket.id);

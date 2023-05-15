@@ -56,7 +56,7 @@ class UserModel {
       const checkUserExists = await User.findOne({ email });
 
       if (!checkUserExists) {
-        return checkUserExists;
+        return false;
       }
 
       const checkPassword = await bcrypt.compare(
@@ -65,7 +65,7 @@ class UserModel {
       );
 
       if (!checkPassword) {
-        return checkPassword;
+        return false;
       }
 
       const token = await signAccessToken(checkUserExists);

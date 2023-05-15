@@ -21,7 +21,7 @@ class AuthController {
       const errors = req.validationErrors();
 
       if (errors) {
-        return errorHandler(res, 400, message.SOMETHING_WRONG, errors);
+        return errorHandler(res, 200, message.SOMETHING_WRONG, errors);
       }
 
       const result = await UserModel.login(req.body);
@@ -35,7 +35,7 @@ class AuthController {
       });
 
       if (!result) {
-        return errorHandler(res, 400, message.CREDENTIALS_WRONG, {});
+        return errorHandler(res, 202, message.CREDENTIALS_WRONG, {});
       }
 
       return successHandler(res, 200, message.SUCCESS("Login"), result);
