@@ -1,8 +1,11 @@
-const server = require("http").createServer();
-const socketConnection = () => {
-  server.listen(vars.chat_port, () => {
-    console.log(`Chat server listening on ${vars.chat_port}`);
-  });
-};
+const express = require("express");
+const app = express();
+const http = require("http");
+const server = http.createServer(app);
+const vars = require("../utils/vars");
 
-module.exports = { socketConnection, server };
+server.listen(vars.chat_port, () => {
+  console.log(`Socket Server is running on Port ${vars.chat_port}`);
+});
+
+module.exports = server;

@@ -35,6 +35,10 @@ const UserSchema = mongoose.Schema(
       type: String,
       default: null,
     },
+    coverImage: {
+      type: String,
+      default: null,
+    },
     last_conversation_id: {
       type: mongoose.Types.ObjectId,
     },
@@ -69,8 +73,16 @@ class UserModel {
       }
 
       const token = await signAccessToken(checkUserExists);
+      let data = false;
 
-      return token;
+      if (token) {
+        data = {
+          token,
+          isUserLogin: true,
+        };
+      }
+
+      return data;
     } catch (err) {
       throw new Error(err);
     }
@@ -194,9 +206,18 @@ class UserModel {
         .select("first_name last_name email profile")
         .exec();
 
+      let items = [];
+      for (let i = 0; i < result.length; i++) {
+        items.push({
+          key: i,
+          value: result[i]._id,
+          text: result[i].first_name + " " + result[i].last_name,
+        });
+      }
+
       // console.log(result);
       if (result.length > 0) {
-        return result;
+        return items;
       }
 
       return false;

@@ -1,15 +1,15 @@
 const { Server } = require("socket.io");
-const { server } = require("../config/socket.config");
-const chat_server = require("socket.io")(server);
+const server = require("../config/socket.config");
+const vars = require("../utils/vars");
+
+let users = vars.users;
 
 const SocketService = () => {
-  const io = new Server(chat_server, {
+  const io = new Server(server, {
     cors: {
-      origin: `${process.env.FRONT_URL}`,
+      origin: `*`,
     },
   });
-
-  let users = [];
 
   const addUser = (userId, socketId) => {
     if (userId) {
@@ -23,12 +23,11 @@ const SocketService = () => {
   };
 
   const getUser = async (userId) => {
-    return await users.find((user) => {
-      user.userId === userId;
+    let user = await users.find((user) => {
+      return user.userId === userId;
     });
+    return user;
   };
-
-  const storeMessage = async (conversationId, message, senderId) => {};
 
   io.on("connection", (socket) => {
     // When Connect
@@ -46,11 +45,19 @@ const SocketService = () => {
     });
 
     // Send and Get Message
-    socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-      const user = getUser(receiverId);
+    socket.on("sendMessage", async ({ senderId, receiverId, text }) => {
+      let user = "";
+      if (receiverId.length > 0 && typeof receiverId !== "string") {
+        for (let i = 0; i < receiverId.length; i++) {
+          user = await getUser(receiverId[i]);
+        }
+      } else {
+        user = await getUser(receiverId);
+      }
       io.to(user.socketId).emit("getMessage", {
         senderId,
         text,
+        socket_id: user.socketId,
       });
     });
 

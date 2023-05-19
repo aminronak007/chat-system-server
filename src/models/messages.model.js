@@ -11,6 +11,9 @@ const MessageSchema = mongoose.Schema(
     text: {
       type: String,
     },
+    isFriend: {
+      type: Boolean,
+    },
   },
   { timestamps: true }
 );

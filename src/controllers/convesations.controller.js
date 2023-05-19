@@ -3,8 +3,29 @@ const { ConversationModel } = require("../models/conversations.model");
 class ConversationsController {
   async create(req, res) {
     try {
-      let result = await ConversationModel.create();
-      return successHandler(res, 200, message.UPDATED("User id"), result);
+      let input = req.body;
+
+      let result = await ConversationModel.create(input);
+
+      if (!result) {
+        return errorHandler(res, 200, message.EXISTS("Conversation"), {});
+      }
+      return successHandler(res, 200, message.CREATED("Conversation"), result);
+    } catch (err) {
+      errorHandler(res, 500, message.ERROR, []);
+    }
+  }
+
+  async createChannel(req, res) {
+    try {
+      let input = req.body;
+
+      let result = await ConversationModel.createChannel(input);
+
+      if (!result) {
+        return errorHandler(res, 200, message.EXISTS("Channel"), {});
+      }
+      return successHandler(res, 200, message.CREATED("Channel"), result);
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
     }
@@ -12,17 +33,34 @@ class ConversationsController {
 
   async read(req, res) {
     try {
-      let result = await ConversationModel.read();
+      let input = req.body;
+
+      let result = await ConversationModel.read(input);
+
+      if (!result) {
+        return errorHandler(
+          res,
+          200,
+          message.NOT_EXISTS("No Conversations"),
+          {}
+        );
+      }
       return successHandler(res, 200, message.UPDATED("User id"), result);
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
     }
   }
 
-  async update(req, res) {
+  async updateChannel(req, res) {
     try {
-      let result = await ConversationModel.update();
-      return successHandler(res, 200, message.UPDATED("User id"), result);
+      let input = req.body;
+
+      let result = await ConversationModel.update(input);
+
+      if (!result) {
+        return errorHandler(res, 200, message.EXISTS("Conversation"), {});
+      }
+      return successHandler(res, 200, message.UPDATED("Member"), result);
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
     }
@@ -30,12 +68,18 @@ class ConversationsController {
 
   async delete(req, res) {
     try {
-      let result = await ConversationModel.delete();
-      return successHandler(res, 200, message.UPDATED("User id"), result);
+      let input = req.body;
+
+      let result = await ConversationModel.delete(input);
+
+      if (!result) {
+        return errorHandler(res, 200, message.NOT_EXISTS("Conversation"), {});
+      }
+      return successHandler(res, 200, message.DELETED("Conversation"), result);
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
     }
   }
 }
 
-module.exports = ConversationsController;
+module.exports = new ConversationsController();

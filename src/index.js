@@ -3,19 +3,16 @@ const cors = require("cors");
 const vars = require("./utils/vars");
 const globalVariablesFunction = require("./utils/global_vars_and_funcs");
 const dbConnection = require("./config/mongodb.config");
-const { socketConnection } = require("./config/socket.config");
 const expressValidator = require("express-validator");
 const path = require("path");
-const SocketService = require("./services/socket.service");
 const mongoSanitize = require("express-mongo-sanitize");
 const morgan = require("morgan");
 const { logs } = require("./utils/vars");
 const fs = require("fs");
+const SocketService = require("./services/socket.service");
 
 globalVariablesFunction();
 dbConnection();
-socketConnection();
-SocketService();
 
 const app = express();
 const PORT = vars.port;
@@ -43,10 +40,12 @@ app.use("/public", express.static(__dirname + "/public"));
 // ------- Front Routes -------
 const AuthRoutes = require("./routes/auth.routes");
 const UserRoutes = require("./routes/user.routes");
+const ConversationRoutes = require("./routes/conversations.routes");
 
 // ------- Front Routes -------
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/users", UserRoutes);
+app.use("/api/v1/conversations", ConversationRoutes);
 
 // ------- Admin Routes -------
 const UserAdminRoutes = require("./routes/admin/users.routes");
@@ -59,6 +58,7 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname.replace("/src", ""), "build/index.html"));
 });
 
+SocketService();
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}.`);
 });

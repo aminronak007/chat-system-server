@@ -26,7 +26,15 @@ class AuthController {
 
       const result = await UserModel.login(req.body);
 
-      res.cookie("accessToken", result, {
+      res.cookie("user_token", result.token, {
+        // expires: new Date(Date.now() + 3600000), // 1 hour
+        maxAge: 24 * 60 * 60 * 1000, //  1 Day
+        // httpOnly: true,
+        secure: true,
+        sameSite: true,
+      });
+
+      res.cookie("isUserLogin", result.isUserLogin, {
         // expires: new Date(Date.now() + 3600000), // 1 hour
         maxAge: 24 * 60 * 60 * 1000, //  1 Day
         // httpOnly: true,
@@ -40,13 +48,16 @@ class AuthController {
 
       return successHandler(res, 200, message.SUCCESS("Login"), result);
     } catch (err) {
+      console.log(err);
       errorHandler(res, 500, message.ERROR, []);
     }
   }
 
   async logout(req, res) {
     try {
-      res.clearCookie("accessToken");
+      res.clearCookie("user_token");
+      res.clearCookie("isUserLogin");
+      res.clearCookie("token");
       return successHandler(res, 200, message.SUCCESS("Logout"), {});
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
