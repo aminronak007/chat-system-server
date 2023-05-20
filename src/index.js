@@ -4,12 +4,12 @@ const vars = require("./utils/vars");
 const globalVariablesFunction = require("./utils/global_vars_and_funcs");
 const dbConnection = require("./config/mongodb.config");
 const expressValidator = require("express-validator");
-const path = require("path");
 const mongoSanitize = require("express-mongo-sanitize");
 const morgan = require("morgan");
 const { logs } = require("./utils/vars");
 const fs = require("fs");
 const SocketService = require("./services/socket.service");
+const path = require("path");
 
 globalVariablesFunction();
 dbConnection();
@@ -27,6 +27,7 @@ const corsOptions = {
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(mongoSanitize());
+app.use(express.static("uploads"));
 
 let accessLogStream = fs.createWriteStream(
   __dirname + "/logs/" + "access.log",
@@ -34,8 +35,6 @@ let accessLogStream = fs.createWriteStream(
 );
 
 app.use(morgan(logs, { stream: accessLogStream }));
-
-app.use("/public", express.static(__dirname + "/public"));
 
 // ------- Front Routes -------
 const AuthRoutes = require("./routes/auth.routes");
@@ -55,7 +54,7 @@ app.use("/api/v1/admin/users", UserAdminRoutes);
 
 app.use("/", express.static(__dirname.replace("/src", "") + "/public"));
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname.replace("/src", ""), "build/index.html"));
+  res.sendFile(path.join(__dirname.replace("/src", ""), "public/index.html"));
 });
 
 SocketService();

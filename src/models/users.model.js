@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { signAccessToken } = require("../middlewares/jwt");
+const { unlinkFiles } = require("../helpers/helpers");
 
 const UserSchema = mongoose.Schema(
   {
@@ -42,6 +43,20 @@ const UserSchema = mongoose.Schema(
     last_conversation_id: {
       type: mongoose.Types.ObjectId,
     },
+    location: {
+      type: String,
+    },
+    themeColor: {
+      type: String,
+    },
+    themeBackground: {
+      type: String,
+    },
+    status: {
+      type: String,
+      enum: ["Active", "Away", "Do not disturb"],
+      default: "Active",
+    },
   },
   { timestamps: true }
 );
@@ -49,7 +64,7 @@ const UserSchema = mongoose.Schema(
 let User = mongoose.model("User", UserSchema);
 
 let user_fields =
-  "first_name last_name email mobile status profile last_conversation_id";
+  "first_name last_name email mobile status profile last_conversation_id coverImage location themeColor themeBackground status";
 class UserModel {
   constructor() {}
 
@@ -216,7 +231,7 @@ class UserModel {
       }
 
       // console.log(result);
-      if (result.length > 0) {
+      if (items.length > 0) {
         return items;
       }
 
@@ -236,6 +251,86 @@ class UserModel {
       if (result) {
         return true;
       }
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async uploadProfile(id, filename) {
+    try {
+      let profile = await User.findOne({ _id: id }).select("profile").lean();
+      const result = await User.findOneAndUpdate({
+        _id: id,
+        profile: filename,
+      });
+
+      if (filename !== profile.profile) {
+        await unlinkFiles(
+          `${process.env.UPLOAD_DIR}/profile/${profile.profile}`
+        );
+      }
+      if (result) {
+        return true;
+      }
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async uploadCoverImage(id, filename) {
+    try {
+      let coverImage = await User.findOne({ _id: id })
+        .select("coverImage")
+        .lean();
+
+      const result = await User.findOneAndUpdate({
+        _id: id,
+        coverImage: filename,
+      });
+
+      if (filename !== coverImage.coverImage) {
+        await unlinkFiles(
+          `${process.env.UPLOAD_DIR}/coverImages/${coverImage.coverImage}`
+        );
+      }
+      if (result) {
+        return true;
+      }
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async updateStatus(id, status) {
+    try {
+      const result = await User.findOneAndUpdate({ _id: id, status }).exec();
+
+      if (result) {
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async updateThemeColor(id, input) {
+    try {
+      const { themeBackground, themeColor } = input;
+      const result = await User.findOneAndUpdate({
+        _id: id,
+        themeColor,
+        themeBackground,
+      }).exec();
+
+      if (result) {
+        return true;
+      }
+
       return false;
     } catch (err) {
       throw new Error(err);

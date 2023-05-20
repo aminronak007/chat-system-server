@@ -11,4 +11,5 @@ module.exports = {
   KEY: "Please provide a valid key.",
   CREDENTIALS_WRONG: "Your credentials are incorrect !",
   NO_FOUND: (title) => `${title} are found.`,
+  LOGO_MSG: "Please select a valid logo file type",
 };

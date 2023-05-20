@@ -50,4 +50,3 @@ class ContactModel {
 }
 
 module.exports = { Contacts, ContactModel: new ContactModel() };
-

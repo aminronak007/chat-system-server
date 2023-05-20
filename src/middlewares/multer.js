@@ -4,15 +4,24 @@ var fs = require("fs");
 const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (
-      file.fieldname === "profile"
-      // file.fieldname === "customer_files" ||
+      file.fieldname === "profile" ||
+      file.fieldname === "coverImage"
       // file.fieldname === "customer_images" ||
       // file.fieldname === "customer_docs"
     ) {
-      if (!fs.existsSync(`src/public/${process.env.UPLOAD_DIR}`)) {
-        fs.mkdirSync(`src/public/${process.env.UPLOAD_DIR}`);
+      if (file.fieldname === "profile") {
+        if (!fs.existsSync(`${process.env.UPLOAD_DIR}/profile`)) {
+          fs.mkdirSync(`${process.env.UPLOAD_DIR}/profile`);
+        }
+        cb(null, `${process.env.UPLOAD_DIR}/profile`);
       }
-      cb(null, `src/public/${process.env.UPLOAD_DIR}`);
+
+      if (file.fieldname === "coverImage") {
+        if (!fs.existsSync(`${process.env.UPLOAD_DIR}/coverImages`)) {
+          fs.mkdirSync(`${process.env.UPLOAD_DIR}/coverImages`);
+        }
+        cb(null, `${process.env.UPLOAD_DIR}/coverImages`);
+      }
     } else {
       let path = "";
       return path;
@@ -31,7 +40,7 @@ const multerStorage = multer.diskStorage({
 exports.upload = multer({
   storage: multerStorage,
   fileFilter: (req, file, cb) => {
-    if (file.fieldname === "profile") {
+    if (file.fieldname === "profile" || file.fieldname === "coverImage") {
       if (
         file.mimetype == "image/png" ||
         file.mimetype == "image/jpg" ||

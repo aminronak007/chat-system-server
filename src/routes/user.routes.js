@@ -19,4 +19,25 @@ router.put(
   UserController.lastConversationId
 );
 
+router.put(
+  "/upload/profile",
+  verifyAccessToken,
+  upload.single("profile"),
+  UserController.uploadProfile
+);
+
+router.put(
+  "/upload/cover-image",
+  verifyAccessToken,
+  upload.single("coverImage"),
+  UserController.uploadCoverImage
+);
+
+router.put("/update/status", verifyAccessToken, UserController.updateStatus);
+router.put(
+  "/update/theme-color",
+  verifyAccessToken,
+  UserController.updateThemeColor
+);
+
 module.exports = router;
