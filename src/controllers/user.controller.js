@@ -170,28 +170,6 @@ class UserController {
       errorHandler(res, 500, message.ERROR, []);
     }
   }
-
-  async updateThemeColor(req, res) {
-    try {
-      const id = req.user._id;
-      const input = req.body;
-
-      const result = await UserModel.updateThemeColor(id, input);
-
-      if (!result) {
-        return errorHandler(res, 200, message.SOMETHING_WENT_WRONG, {});
-      }
-
-      return successHandler(
-        res,
-        200,
-        message.UPDATED("Theme colour and background"),
-        result
-      );
-    } catch (err) {
-      errorHandler(res, 500, message.ERROR, []);
-    }
-  }
 }
 
 module.exports = new UserController();

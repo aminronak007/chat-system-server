@@ -34,10 +34,5 @@ router.put(
 );
 
 router.put("/update/status", verifyAccessToken, UserController.updateStatus);
-router.put(
-  "/update/theme-color",
-  verifyAccessToken,
-  UserController.updateThemeColor
-);
 
 module.exports = router;

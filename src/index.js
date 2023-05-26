@@ -39,11 +39,14 @@ app.use(morgan(logs, { stream: accessLogStream }));
 // ------- Front Routes -------
 const AuthRoutes = require("./routes/auth.routes");
 const UserRoutes = require("./routes/user.routes");
+const SettingsRoutes = require("./routes/settings.routes");
+
 const ConversationRoutes = require("./routes/conversations.routes");
 
 // ------- Front Routes -------
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/users", UserRoutes);
+app.use("/api/v1/user/settings", SettingsRoutes);
 app.use("/api/v1/conversations", ConversationRoutes);
 
 // ------- Admin Routes -------

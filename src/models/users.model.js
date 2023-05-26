@@ -52,10 +52,33 @@ const UserSchema = mongoose.Schema(
     themeBackground: {
       type: String,
     },
-    status: {
+    userStatus: {
       type: String,
       enum: ["Active", "Away", "Do not disturb"],
       default: "Active",
+    },
+    profilePhotoSeen: {
+      type: String,
+      enum: ["everyone", "nobody", "selected"],
+      default: "everyone",
+    },
+    lastSeen: {
+      type: Boolean,
+      default: true,
+    },
+    statusSeen: {
+      type: String,
+      enum: ["everyone", "nobody", "selected"],
+      default: "everyone",
+    },
+    readReceipts: {
+      type: Boolean,
+      default: false,
+    },
+    groupsSeen: {
+      type: String,
+      enum: ["everyone", "nobody", "selected"],
+      default: "everyone",
     },
   },
   { timestamps: true }
@@ -64,7 +87,7 @@ const UserSchema = mongoose.Schema(
 let User = mongoose.model("User", UserSchema);
 
 let user_fields =
-  "first_name last_name email mobile status profile last_conversation_id coverImage location themeColor themeBackground status";
+  "first_name last_name email mobile status profile last_conversation_id coverImage location themeColor themeBackground status groupsSeen lastSeen profilePhotoSeen readReceipts statusSeen";
 class UserModel {
   constructor() {}
 
@@ -304,9 +327,12 @@ class UserModel {
     }
   }
 
-  async updateStatus(id, status) {
+  async updateStatus(id, userStatus) {
     try {
-      const result = await User.findOneAndUpdate({ _id: id, status }).exec();
+      const result = await User.findOneAndUpdate({
+        _id: id,
+        userStatus,
+      }).exec();
 
       if (result) {
         return true;
@@ -329,6 +355,38 @@ class UserModel {
 
       if (result) {
         return true;
+      }
+
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async updatePrivacySettings(id, input) {
+    try {
+      const {
+        profilePhotoSeen,
+        lastSeen,
+        statusSeen,
+        readReceipts,
+        groupsSeen,
+      } = input;
+
+      const result = await User.findOneAndUpdate({
+        _id: id,
+        profilePhotoSeen,
+        lastSeen,
+        statusSeen,
+        readReceipts,
+        groupsSeen,
+      }).exec();
+
+      if (result) {
+        let settings = await User.findOne({ _id: id }).select(
+          "profilePhotoSeen lastSeen statusSeen readReceipts groupsSeen"
+        );
+        return settings;
       }
 
       return false;
