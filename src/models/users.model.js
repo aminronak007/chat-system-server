@@ -87,7 +87,7 @@ const UserSchema = mongoose.Schema(
 let User = mongoose.model("User", UserSchema);
 
 let user_fields =
-  "first_name last_name email mobile status profile last_conversation_id coverImage location themeColor themeBackground status groupsSeen lastSeen profilePhotoSeen readReceipts statusSeen";
+  "first_name last_name email mobile status profile last_conversation_id coverImage location themeColor themeBackground userStatus";
 class UserModel {
   constructor() {}
 
@@ -387,6 +387,54 @@ class UserModel {
           "profilePhotoSeen lastSeen statusSeen readReceipts groupsSeen"
         );
         return settings;
+      }
+
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async getPrivacySettings(id) {
+    try {
+      const result = await User.findOne({
+        _id: id,
+      })
+        .select("profilePhotoSeen lastSeen statusSeen readReceipts groupsSeen")
+        .lean();
+
+      if (result) {
+        return result;
+      }
+
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async changePassword(id, input) {
+    try {
+      const { old_password, new_password } = input;
+
+      const result = await User.findOne({ _id: id }).lean();
+
+      const checkPassword = await bcrypt.compare(old_password, result.password);
+
+      if (!checkPassword) {
+        return false;
+      }
+
+      if (checkPassword) {
+        let hashPassword = await bcrypt.hash(new_password, 10);
+        const result = await User.findOneAndUpdate({
+          _id: id,
+          password: hashPassword,
+        }).lean();
+
+        if (result) {
+          return true;
+        }
       }
 
       return false;

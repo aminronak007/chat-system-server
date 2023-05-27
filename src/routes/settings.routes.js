@@ -14,4 +14,16 @@ router.put(
   SettingsController.updatePrivacySettings
 );
 
+router.get(
+  "/read/privacy",
+  verifyAccessToken,
+  SettingsController.getPrivacySettings
+);
+
+router.put(
+  "/update/password",
+  verifyAccessToken,
+  SettingsController.changePassword
+);
+
 module.exports = router;
