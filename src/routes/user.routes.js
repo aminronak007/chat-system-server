@@ -34,5 +34,10 @@ router.put(
 );
 
 router.put("/update/status", verifyAccessToken, UserController.updateStatus);
+router.put(
+  "/update/username",
+  verifyAccessToken,
+  UserController.updateUsername
+);
 
 module.exports = router;

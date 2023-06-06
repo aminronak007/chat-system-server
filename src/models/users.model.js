@@ -13,6 +13,9 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    username: {
+      type: String,
+    },
     email: {
       type: String,
       required: true,
@@ -435,6 +438,22 @@ class UserModel {
         if (result) {
           return true;
         }
+      }
+
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async updateUsername(id, input) {
+    try {
+      const { username } = input;
+
+      const result = await User.findOneAndUpdate({ _id: id, username }).exec();
+
+      if (result) {
+        return true;
       }
 
       return false;

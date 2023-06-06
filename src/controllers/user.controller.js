@@ -170,6 +170,23 @@ class UserController {
       errorHandler(res, 500, message.ERROR, []);
     }
   }
+
+  async updateUsername(req, res) {
+    try {
+      const id = req.user._id;
+      const { username } = req.body;
+
+      const result = await UserModel.updateUsername(id, username);
+
+      if (!result) {
+        return errorHandler(res, 200, message.SOMETHING_WENT_WRONG, {});
+      }
+
+      return successHandler(res, 200, message.UPDATED("Username"), result);
+    } catch (err) {
+      errorHandler(res, 500, message.ERROR, []);
+    }
+  }
 }
 
 module.exports = new UserController();
