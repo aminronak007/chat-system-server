@@ -1,18 +1,18 @@
-const mongoose = rwquire("mongoose");
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema.Types;
 
 const MessageSchema = mongoose.Schema(
   {
     conversation_id: {
-      type: mongoose.Types.ObjectId,
+      type: ObjectId,
+      ref: "conversations",
     },
     sender_id: {
-      type: mongoose.Types.ObjectId,
+      type: ObjectId,
+      ref: "User",
     },
     text: {
       type: String,
-    },
-    isFriend: {
-      type: Boolean,
     },
   },
   { timestamps: true }

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const ConversationSchema = mongoose.Schema(
   {
-    members: {
+    participants: {
       type: Array,
     },
     isChannel: {
@@ -11,6 +11,13 @@ const ConversationSchema = mongoose.Schema(
     name: {
       type: String,
       default: null,
+    },
+    image: {
+      type: String,
+      default: null,
+    },
+    last_message_at: {
+      type: Date,
     },
   },
   { timestamps: true }
@@ -24,7 +31,7 @@ class ConversationModel {
       const { senderId, receiverId } = input;
 
       const conversation = await Conversations.findOne({
-        members: { $all: [senderId, receiverId] },
+        participants: { $all: [senderId, receiverId] },
         isChannel: { $ne: true },
       }).lean();
 
@@ -32,7 +39,7 @@ class ConversationModel {
 
       if (!conversation) {
         const newConversation = await Conversations.create({
-          members: [senderId, receiverId],
+          participants: [senderId, receiverId],
           isChannel: false,
         });
 
@@ -53,13 +60,13 @@ class ConversationModel {
       const { members, name } = input;
 
       const conversation = await Conversations.findOne({
-        members: { $all: members },
+        participants: { $all: members },
       }).lean();
 
       if (!conversation) {
         const newConversation = await Conversations.create({
           name: name,
-          members: members,
+          participants: members,
           isChannel: true,
         });
 
@@ -78,7 +85,7 @@ class ConversationModel {
     try {
       const { user_id } = input;
       const conversations = await Conversations.find({
-        members: {
+        participants: {
           $in: [user_id],
         },
       }).lean();
@@ -99,7 +106,7 @@ class ConversationModel {
 
       const conversation = await Conversations.findOne({
         _id: conversation_id,
-        members: { $all: [member_id] },
+        participants: { $all: [member_id] },
       }).lean();
 
       if (!conversation) {
@@ -107,7 +114,7 @@ class ConversationModel {
           { _id: conversation_id },
           {
             $push: {
-              members: member_id,
+              participants: member_id,
             },
           }
         );

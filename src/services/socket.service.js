@@ -1,6 +1,7 @@
 const { Server } = require("socket.io");
 const server = require("../config/socket.config");
 const vars = require("../utils/vars");
+const MessageController = require("../controllers/messages.controller");
 
 let users = vars.users;
 

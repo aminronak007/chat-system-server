@@ -42,12 +42,14 @@ const UserRoutes = require("./routes/user.routes");
 const SettingsRoutes = require("./routes/settings.routes");
 
 const ConversationRoutes = require("./routes/conversations.routes");
+const FriendsRouter = require("./routes/friends.routes");
 
 // ------- Front Routes -------
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/users", UserRoutes);
 app.use("/api/v1/user/settings", SettingsRoutes);
 app.use("/api/v1/conversations", ConversationRoutes);
+app.use("/api/v1/friends", FriendsRouter);
 
 // ------- Admin Routes -------
 const UserAdminRoutes = require("./routes/admin/users.routes");
