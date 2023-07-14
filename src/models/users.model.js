@@ -83,6 +83,13 @@ const UserSchema = mongoose.Schema(
       enum: ["everyone", "nobody", "selected"],
       default: "everyone",
     },
+    lastSelectedChat: {
+      type: String,
+    },
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -90,7 +97,7 @@ const UserSchema = mongoose.Schema(
 let User = mongoose.model("User", UserSchema);
 
 let user_fields =
-  "first_name last_name email mobile status profile last_conversation_id coverImage location themeColor themeBackground userStatus";
+  "first_name last_name email mobile status profile last_conversation_id coverImage location themeColor themeBackground userStatus lastSelectedChat";
 class UserModel {
   constructor() {}
 
@@ -451,6 +458,25 @@ class UserModel {
       const { username } = input;
 
       const result = await User.findOneAndUpdate({ _id: id, username }).exec();
+
+      if (result) {
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async updateLastSelectedChat(user_id, selectedChatId) {
+    try {
+      const result = await User.findOneAndUpdate(
+        { _id: user_id },
+        {
+          lastSelectedChat: selectedChatId,
+        }
+      );
 
       if (result) {
         return true;

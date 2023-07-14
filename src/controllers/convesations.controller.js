@@ -1,10 +1,13 @@
 const { ConversationModel } = require("../models/conversations.model");
+const { UserModel } = require("../models/users.model");
 
 class ConversationsController {
   async create(req, res) {
     try {
+      let user_id = req.user._id;
       let input = req.body;
 
+      await UserModel.updateLastSelectedChat(user_id, input.receiver_id);
       let result = await ConversationModel.create(input);
 
       if (!result) {
