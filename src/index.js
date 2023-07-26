@@ -5,9 +5,9 @@ const globalVariablesFunction = require("./utils/global_vars_and_funcs");
 const dbConnection = require("./config/mongodb.config");
 const expressValidator = require("express-validator");
 const mongoSanitize = require("express-mongo-sanitize");
-const morgan = require("morgan");
-const { logs } = require("./utils/vars");
-const fs = require("fs");
+// const morgan = require("morgan");
+// const { logs } = require("./utils/vars");
+// const fs = require("fs");
 const SocketService = require("./services/socket.service");
 const path = require("path");
 
@@ -18,14 +18,14 @@ const app = express();
 const PORT = vars.port;
 
 app.use(expressValidator());
-const corsOptions = {
-  origin: "http://localhost:3000",
-  credentials: true, //access-control-allow-credentials:true
-  optionSuccessStatus: 200,
-};
+// const corsOptions = {
+//   origin: "http://localhost:3000",
+//   credentials: true, //access-control-allow-credentials:true
+//   optionSuccessStatus: 200,
+// };
 
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(mongoSanitize());
 app.use(express.static("uploads"));
 
