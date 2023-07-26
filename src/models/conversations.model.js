@@ -35,8 +35,6 @@ class ConversationModel {
         isChannel: { $ne: true },
       }).lean();
 
-      console.log("conversation", conversation);
-
       if (!conversation) {
         const newConversation = await Conversations.create({
           participants: [senderId, receiverId],
@@ -88,7 +86,9 @@ class ConversationModel {
         participants: {
           $in: [user_id],
         },
-      }).lean();
+      })
+        .populate("participants")
+        .lean();
 
       if (conversations.length > 0) {
         return conversations;

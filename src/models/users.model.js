@@ -278,7 +278,7 @@ class UserModel {
     try {
       const result = await User.findOneAndUpdate(
         { _id: id },
-        { last_conversation_id: user_id }
+        { last_conversation_id: user_id, lastSelectedChat: user_id }
       );
 
       if (result) {

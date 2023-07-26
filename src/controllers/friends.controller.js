@@ -19,6 +19,7 @@ class FriendController {
       errorHandler(res, 500, message.ERROR, []);
     }
   }
+
   async create(req, res) {
     try {
       let input = req.body;

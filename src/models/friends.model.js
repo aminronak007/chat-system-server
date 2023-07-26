@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema.Types;
+const { ConversationModel } = require("./conversations.model");
 
 const FriendsSchema = mongoose.Schema(
   {
@@ -36,6 +37,15 @@ class FriendModel {
       });
 
       if (addFriend) {
+        let senderId = user_id;
+        let receiverId = friend_id;
+
+        let data = {
+          senderId,
+          receiverId,
+        };
+
+        await ConversationModel.create(data);
         return true;
       }
 
