@@ -19,7 +19,7 @@ const PORT = vars.port;
 
 app.use(expressValidator());
 const corsOptions = {
-  origin: ["http://localhost:3000", "https://ar-chat-app.onrender.com"],
+  origin: ["http://localhost:3000", "https://ar-chat-app.netlify.app"],
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
