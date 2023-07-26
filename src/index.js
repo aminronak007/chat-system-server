@@ -29,12 +29,12 @@ app.use(cors(corsOptions));
 app.use(mongoSanitize());
 app.use(express.static("uploads"));
 
-let accessLogStream = fs.createWriteStream(
-  __dirname + "/logs/" + "access.log",
-  { flags: "a" }
-);
+// let accessLogStream = fs.createWriteStream(
+//   __dirname + "/logs/" + "access.log",
+//   { flags: "a" }
+// );
 
-app.use(morgan(logs, { stream: accessLogStream }));
+// app.use(morgan(logs, { stream: accessLogStream }));
 
 // ------- Front Routes -------
 const AuthRoutes = require("./routes/auth.routes");
