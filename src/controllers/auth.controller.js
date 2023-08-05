@@ -69,7 +69,6 @@ class AuthController {
       const { user } = req;
 
       const result = await UserModel.checkUser(user._id);
-
       return successHandler(
         res,
         200,

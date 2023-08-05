@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { signAccessToken } = require("../middlewares/jwt");
 const { unlinkFiles } = require("../helpers/helpers");
+const { ObjectId } = mongoose.Schema.Types;
 
 const UserSchema = mongoose.Schema(
   {
@@ -84,7 +85,8 @@ const UserSchema = mongoose.Schema(
       default: "everyone",
     },
     lastSelectedChat: {
-      type: String,
+      type: ObjectId,
+      ref: "User",
     },
     isArchived: {
       type: Boolean,
@@ -140,6 +142,10 @@ class UserModel {
     try {
       const getUserDetails = await User.findOne({ _id: id })
         .select(user_fields)
+        .populate({
+          path: "lastSelectedChat",
+          select: "_id first_name last_name email status profile location", // Select only the 'name' field of the friend
+        })
         .lean();
 
       return getUserDetails;
