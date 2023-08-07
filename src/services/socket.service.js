@@ -48,17 +48,17 @@ const SocketService = () => {
     // Send and Get Message
     socket.on("sendMessage", async ({ senderId, receiverId, text }) => {
       let user = "";
-      if (receiverId.length > 0 && typeof receiverId !== "string") {
-        for (let i = 0; i < receiverId.length; i++) {
+      if (receiverId?.length > 0 && typeof receiverId !== "string") {
+        for (let i = 0; i < receiverId?.length; i++) {
           user = await getUser(receiverId[i]);
         }
       } else {
         user = await getUser(receiverId);
       }
-      io.to(user.socketId).emit("getMessage", {
+      console.log(senderId, receiverId, text, user);
+      io.to(user?.socketId).emit("getMessage", {
         senderId,
         text,
-        socket_id: user.socketId,
       });
     });
 
