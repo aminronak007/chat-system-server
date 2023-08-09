@@ -36,19 +36,19 @@ class ConversationsController {
 
   async read(req, res) {
     try {
-      let input = req.body;
+      let user_id = req.user._id;
 
-      let result = await ConversationModel.read(input);
+      let result = await ConversationModel.read(user_id);
 
       if (!result) {
-        return errorHandler(
-          res,
-          200,
-          message.NOT_EXISTS("No Conversations"),
-          {}
-        );
+        return errorHandler(res, 200, message.NOT_FOUND("Conversations"), {});
       }
-      return successHandler(res, 200, message.UPDATED("User id"), result);
+      return successHandler(
+        res,
+        200,
+        message.NO_FOUND("Conversations"),
+        result
+      );
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
     }

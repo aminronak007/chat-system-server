@@ -154,6 +154,24 @@ class UserModel {
     }
   }
 
+  async logout(id) {
+    try {
+      const updateSelectedChat = await User.findOneAndUpdate(
+        { _id: id },
+        {
+          lastSelectedChat: null,
+        }
+      );
+      if (updateSelectedChat) {
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
   async createUser(input, file) {
     try {
       const { first_name, last_name, email, mobile, password } = input;

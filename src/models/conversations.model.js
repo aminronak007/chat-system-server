@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema.Types;
 
 const ConversationSchema = mongoose.Schema(
   {
-    participants: {
-      type: Array,
-    },
+    senderId: { type: ObjectId, ref: "User" },
+    receiverId: { type: ObjectId, ref: "User" },
     isChannel: {
       type: Boolean,
     },
@@ -31,13 +31,16 @@ class ConversationModel {
       const { senderId, receiverId } = input;
 
       const conversation = await Conversations.findOne({
-        participants: { $all: [senderId, receiverId] },
-        isChannel: { $ne: true },
+        senderId,
+        receiverId,
+        isChannel: { $eq: false },
       }).lean();
 
+      console.log(conversation);
       if (!conversation) {
         const newConversation = await Conversations.create({
-          participants: [senderId, receiverId],
+          senderId,
+          receiverId,
           isChannel: false,
         });
 
@@ -79,15 +82,16 @@ class ConversationModel {
     }
   }
 
-  async read(input) {
+  async read(user_id) {
     try {
-      const { user_id } = input;
       const conversations = await Conversations.find({
-        participants: {
-          $in: [user_id],
-        },
+        isChannel: { $eq: false },
+        senderId: user_id,
       })
-        .populate("participants")
+        .populate({
+          path: "receiverId",
+          select: "_id first_name last_name email mobile status profile",
+        })
         .lean();
 
       if (conversations.length > 0) {

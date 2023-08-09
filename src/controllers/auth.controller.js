@@ -55,6 +55,8 @@ class AuthController {
 
   async logout(req, res) {
     try {
+      const result = await UserModel.logout(req.user._id);
+
       res.clearCookie("user_token");
       res.clearCookie("isUserLogin");
       res.clearCookie("token");
