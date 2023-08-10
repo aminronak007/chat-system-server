@@ -23,24 +23,16 @@ const SocketService = () => {
     });
 
     // Send and Get Message
-    socket.on("sendMessage", async ({ senderId, receiverId, data }) => {
+    socket.on("sendMessage", async (data) => {
       // userSocketsMap.set(receiverId, socket);
-      const targetSocket = userSocketsMap.get(receiverId);
+      const targetSocket = userSocketsMap.get(data?.receiverId);
 
       if (targetSocket) {
-        targetSocket.emit("getMessage", {
-          ChatMode: "Individual",
-          SenderUserId: senderId,
-          RecipientUserId: receiverId,
-          message: {
-            MessageType: "Text",
-            Text: data,
-          },
-          Status: "Delivered",
-          Datetime: new Date(),
-        });
+        targetSocket.emit("getMessage", data);
       } else {
-        console.log(`User with ID ${receiverId} not found or not connected.`);
+        console.log(
+          `User with ID ${data?.receiverId} not found or not connected.`
+        );
       }
     });
 

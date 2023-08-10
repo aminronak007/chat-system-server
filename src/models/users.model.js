@@ -46,6 +46,7 @@ const UserSchema = mongoose.Schema(
     },
     last_conversation_id: {
       type: mongoose.Types.ObjectId,
+      ref: "conversations",
     },
     location: {
       type: String,
@@ -143,8 +144,11 @@ class UserModel {
       const getUserDetails = await User.findOne({ _id: id })
         .select(user_fields)
         .populate({
-          path: "lastSelectedChat",
-          select: "_id first_name last_name email status profile location", // Select only the 'name' field of the friend
+          path: "last_conversation_id",
+          populate: {
+            path: "receiverId",
+            select: "_id first_name last_name email phone userStatus profile",
+          },
         })
         .lean();
 
@@ -189,7 +193,7 @@ class UserModel {
         email,
         mobile,
         password: hashPassword,
-        profile: file.filename,
+        profile: file?.filename,
       }).save();
 
       return result;
@@ -235,7 +239,7 @@ class UserModel {
         email: input.email,
         mobile: input.mobile,
         status: input.status,
-        profile: file.filename,
+        profile: file?.filename,
       };
 
       const result = await User.findByIdAndUpdate({ _id: id }, data).exec();
@@ -246,6 +250,7 @@ class UserModel {
 
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }
@@ -317,14 +322,16 @@ class UserModel {
   async uploadProfile(id, filename) {
     try {
       let profile = await User.findOne({ _id: id }).select("profile").lean();
-      const result = await User.findOneAndUpdate({
-        _id: id,
-        profile: filename,
-      });
+      const result = await User.findOneAndUpdate(
+        { _id: id },
+        {
+          profile: filename,
+        }
+      );
 
-      if (filename !== profile.profile) {
+      if (filename !== profile?.profile) {
         await unlinkFiles(
-          `${process.env.UPLOAD_DIR}/profile/${profile.profile}`
+          `${process.env.UPLOAD_DIR}/profile/${profile?.profile}`
         );
       }
       if (result) {
@@ -332,6 +339,7 @@ class UserModel {
       }
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }
@@ -342,14 +350,16 @@ class UserModel {
         .select("coverImage")
         .lean();
 
-      const result = await User.findOneAndUpdate({
-        _id: id,
-        coverImage: filename,
-      });
+      const result = await User.findOneAndUpdate(
+        { _id: id },
+        {
+          coverImage: filename,
+        }
+      );
 
-      if (filename !== coverImage.coverImage) {
+      if (filename !== coverImage?.coverImage) {
         await unlinkFiles(
-          `${process.env.UPLOAD_DIR}/coverImages/${coverImage.coverImage}`
+          `${process.env.UPLOAD_DIR}/coverImages/${coverImage?.coverImage}`
         );
       }
       if (result) {
@@ -357,16 +367,20 @@ class UserModel {
       }
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }
 
   async updateStatus(id, userStatus) {
     try {
-      const result = await User.findOneAndUpdate({
-        _id: id,
-        userStatus,
-      }).exec();
+      console.log(id, userStatus);
+      const result = await User.findOneAndUpdate(
+        { _id: id },
+        {
+          userStatus,
+        }
+      );
 
       if (result) {
         return true;
@@ -374,6 +388,7 @@ class UserModel {
 
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }
@@ -381,11 +396,13 @@ class UserModel {
   async updateThemeColor(id, input) {
     try {
       const { themeBackground, themeColor } = input;
-      const result = await User.findOneAndUpdate({
-        _id: id,
-        themeColor,
-        themeBackground,
-      }).exec();
+      const result = await User.findOneAndUpdate(
+        { _id: id },
+        {
+          themeColor,
+          themeBackground,
+        }
+      ).exec();
 
       if (result) {
         return true;
@@ -407,14 +424,16 @@ class UserModel {
         groupsSeen,
       } = input;
 
-      const result = await User.findOneAndUpdate({
-        _id: id,
-        profilePhotoSeen,
-        lastSeen,
-        statusSeen,
-        readReceipts,
-        groupsSeen,
-      }).exec();
+      const result = await User.findOneAndUpdate(
+        { _id: id },
+        {
+          profilePhotoSeen,
+          lastSeen,
+          statusSeen,
+          readReceipts,
+          groupsSeen,
+        }
+      ).exec();
 
       if (result) {
         let settings = await User.findOne({ _id: id }).select(
@@ -481,7 +500,10 @@ class UserModel {
     try {
       const { username } = input;
 
-      const result = await User.findOneAndUpdate({ _id: id, username }).exec();
+      const result = await User.findOneAndUpdate(
+        { _id: id },
+        { username }
+      ).exec();
 
       if (result) {
         return true;

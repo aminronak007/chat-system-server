@@ -1,5 +1,4 @@
 const { UserModel } = require("../models/users.model");
-const { unlinkFiles } = require("../helpers/helpers");
 
 class UserController {
   constructor() {}
@@ -98,7 +97,7 @@ class UserController {
   async uploadProfile(req, res) {
     try {
       const id = req.user._id;
-      let filename = (await req.file) ? req.file?.filename : "";
+      let filename = req.file ? req.file?.filename : "";
 
       if (req.file) {
         if (req.file === undefined) {
@@ -130,7 +129,7 @@ class UserController {
   async uploadCoverImage(req, res) {
     try {
       const id = req.user._id;
-      let filename = (await req.file) ? req.file?.filename : "";
+      let filename = req.file ? req.file?.filename : "";
 
       if (req.file) {
         if (req.file === undefined) {
@@ -156,7 +155,7 @@ class UserController {
 
   async updateStatus(req, res) {
     try {
-      const id = req.user._id;
+      const id = req?.user?._id;
       const { status } = req.body;
 
       const result = await UserModel.updateStatus(id, status);

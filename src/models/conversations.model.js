@@ -3,8 +3,7 @@ const { ObjectId } = mongoose.Schema.Types;
 
 const ConversationSchema = mongoose.Schema(
   {
-    senderId: { type: ObjectId, ref: "User" },
-    receiverId: { type: ObjectId, ref: "User" },
+    participants: [{ type: ObjectId, ref: "User" }],
     isChannel: {
       type: Boolean,
     },
