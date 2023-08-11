@@ -74,14 +74,8 @@ let users = vars.users;
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:3000",
-      "http://192.168.48.1:3000",
-      "https://ar-chat-app.netlify.app",
-      "https://ar-chat-app.onrender.com",
-    ],
+    origin: "*",
   },
-  transports: ["websocket"],
 });
 
 const addUser = (userId, socketId) => {
