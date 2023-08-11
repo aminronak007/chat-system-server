@@ -8,7 +8,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 // const morgan = require("morgan");
 // const { logs } = require("./utils/vars");
 // const fs = require("fs");
-// const SocketService = require("./config/new.socket");
+const server = require("./config/socket.config");
 const path = require("path");
 const { Server } = require("socket.io");
 
@@ -22,6 +22,7 @@ app.use(expressValidator());
 const corsOptions = {
   origin: [
     "http://localhost:3000",
+    "http://192.168.48.1:3000",
     "https://ar-chat-app.netlify.app",
     "https://ar-chat-app.onrender.com",
   ],
@@ -69,9 +70,9 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname.replace("/src", ""), "public/index.html"));
 });
 
-let users = [];
+let users = vars.users;
 
-const io = new Server(vars.chat_port, {
+const io = new Server(server, {
   cors: {
     origin: "*",
   },
@@ -90,21 +91,45 @@ const getUser = async (userId) => {
   return await users.find((user) => user.userId === userId);
 };
 
+// io.on("connection", (socket) => {
+//   // When Connect
+//   console.log("A user is connected.");
+
+//   socket.on("addUser", (userData) => {
+//     // console.log("userAdd", userData);
+
+//     addUser(userData, socket.id);
+//     io.emit("getUsers", users);
+//     // console.log("userAddAfter", users);
+//   });
+
+//   socket.on("sendMessage", async (data) => {
+//     console.log("data", data);
+//     const user = await getUser(data.receiverId);
+//     console.log("users", users);
+
+//     if (user) {
+//       console.log("user", user);
+
+//       io.to(user.socketId).emit("getMessage", data);
+//     }
+//   });
+// });
+
 io.on("connection", (socket) => {
-  // When Connect
-  console.log("A user is connected.");
+  console.log("A user connected");
 
-  socket.on("addUser", (userData) => {
-    addUser(userData, socket.id);
-    console.log(userData, users);
-    io.emit("getUsers", users);
+  // Listen for incoming messages
+  socket.on("sendMessage", (data) => {
+    console.log("Received message:", data);
+
+    // Broadcast the message to all connected clients
+    io.emit("getMessage", data);
   });
 
-  socket.on("sendMessage", async (data) => {
-    const user = await getUser(data.receiverId);
-
-    io.to(user.socketId).emit("getMessage", data);
-  });
+  // socket.on("disconnect", () => {
+  //   console.log("A user disconnected");
+  // });
 });
 
 app.listen(PORT, () => {

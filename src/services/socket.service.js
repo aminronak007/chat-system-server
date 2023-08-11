@@ -1,56 +1,47 @@
 const { Server } = require("socket.io");
 const server = require("../config/socket.config");
 
-// Store the mapping of user IDs to their sockets
-const userSocketsMap = new Map();
-
 const SocketService = () => {
+  let users = vars.users;
+
   const io = new Server(server, {
     cors: {
-      origin: `*`,
+      origin: "http://localhost:3000",
     },
   });
 
-  const activeUsers = {}; // Store active users and their sockets
+  const addUser = (userId, socketId) => {
+    if (userId) {
+      !users.some((user) => user.userId === userId) &&
+        users.push({ userId, socketId });
+    }
+    // console.log("users", users);
+  };
+
+  const getUser = async (userId) => {
+    // console.log("getUser", userId);
+    return await users.find((user) => user.userId === userId);
+  };
 
   io.on("connection", (socket) => {
     // When Connect
     console.log("A user is connected.");
 
-    socket.on("addUser", (users) => {
-      // console.log(users);
-      userSocketsMap.set(users[0], socket);
-      userSocketsMap.set(users[1], socket);
+    socket.on("addUser", (userData) => {
+      // console.log("userAdd", userData);
+
+      addUser(userData, socket.id);
+      io.emit("getUsers", users);
+      // console.log("userAddAfter", users);
     });
 
-    socket.on("privateMessage", (data) => {
-      const recipientSocket = activeUsers[data.receiverId];
-
-      if (recipientSocket) {
-        recipientSocket.emit("getMessage", data);
-      }
-    });
-
-    // Send and Get Message
     socket.on("sendMessage", async (data) => {
-      // userSocketsMap.set(receiverId, socket);
-      const targetSocket = userSocketsMap.get(data?.receiverId);
-
-      const createdAt = Date.now();
-      data.createdAt = createdAt;
-
-      if (targetSocket) {
-        targetSocket.emit("getMessage", data);
-      } else {
-        console.log(
-          `User with ID ${data?.receiverId} not found or not connected.`
-        );
+      console.log("data", data);
+      const user = await getUser(data.receiverId);
+      console.log("user", user, users);
+      if (user) {
+        io.to(user.socketId).emit("getMessage", data);
       }
-    });
-
-    // When Disconnect
-    socket.on("disconnect", () => {
-      console.log("a user is disconnected.");
     });
   });
 };
