@@ -3,8 +3,14 @@ const { MessageModel } = require("../models/messages.model");
 class MessagesController {
   async create(req, res) {
     try {
-      let result = await MessageModel.create();
-      return successHandler(res, 200, message.UPDATED("User id"), result);
+      const input = req.body;
+      let result = await MessageModel.create(input);
+
+      if (!result) {
+        return errorHandler(res, 200, message.ERROR, result);
+      }
+
+      return successHandler(res, 200, message.SUCCESS("Message store"), result);
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
     }
@@ -12,8 +18,13 @@ class MessagesController {
 
   async read(req, res) {
     try {
-      let result = await MessageModel.read();
-      return successHandler(res, 200, message.UPDATED("User id"), result);
+      const conversation_id = req.params.id;
+      let result = await MessageModel.read(conversation_id);
+
+      if (!result) {
+        return errorHandler(res, 200, message.NOT_FOUND("Messages"), result);
+      }
+      return successHandler(res, 200, message.NO_FOUND("Messages"), result);
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
     }
@@ -38,4 +49,4 @@ class MessagesController {
   }
 }
 
-module.exports = MessagesController;
+module.exports = new MessagesController();

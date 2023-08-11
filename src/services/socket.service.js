@@ -11,21 +11,33 @@ const SocketService = () => {
     },
   });
 
+  const activeUsers = {}; // Store active users and their sockets
+
   io.on("connection", (socket) => {
     // When Connect
     console.log("A user is connected.");
 
-    // Custom event to register the user with their ID
-    socket.on("addUser", (receiverId) => {
-      // Store the user's socket using their ID as the key
-      userSocketsMap.set(receiverId, socket);
-      // console.log(`User ${receiverId} is now registered.`);
+    socket.on("addUser", (users) => {
+      // console.log(users);
+      userSocketsMap.set(users[0], socket);
+      userSocketsMap.set(users[1], socket);
+    });
+
+    socket.on("privateMessage", (data) => {
+      const recipientSocket = activeUsers[data.receiverId];
+
+      if (recipientSocket) {
+        recipientSocket.emit("getMessage", data);
+      }
     });
 
     // Send and Get Message
     socket.on("sendMessage", async (data) => {
       // userSocketsMap.set(receiverId, socket);
       const targetSocket = userSocketsMap.get(data?.receiverId);
+
+      const createdAt = Date.now();
+      data.createdAt = createdAt;
 
       if (targetSocket) {
         targetSocket.emit("getMessage", data);

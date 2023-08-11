@@ -8,8 +8,9 @@ const mongoSanitize = require("express-mongo-sanitize");
 // const morgan = require("morgan");
 // const { logs } = require("./utils/vars");
 // const fs = require("fs");
-const SocketService = require("./services/socket.service");
+// const SocketService = require("./config/new.socket");
 const path = require("path");
+const { Server } = require("socket.io");
 
 globalVariablesFunction();
 dbConnection();
@@ -47,6 +48,7 @@ const SettingsRoutes = require("./routes/settings.routes");
 
 const ConversationRoutes = require("./routes/conversations.routes");
 const FriendsRouter = require("./routes/friends.routes");
+const MessagesRouter = require("./routes/messages.routes");
 
 // ------- Front Routes -------
 app.use("/api/v1/auth", AuthRoutes);
@@ -54,6 +56,7 @@ app.use("/api/v1/users", UserRoutes);
 app.use("/api/v1/user/settings", SettingsRoutes);
 app.use("/api/v1/conversations", ConversationRoutes);
 app.use("/api/v1/friends", FriendsRouter);
+app.use("/api/v1/messages", MessagesRouter);
 
 // ------- Admin Routes -------
 const UserAdminRoutes = require("./routes/admin/users.routes");
@@ -66,7 +69,44 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname.replace("/src", ""), "public/index.html"));
 });
 
-SocketService();
+let users = [];
+
+const io = new Server(vars.chat_port, {
+  cors: {
+    origin: "*",
+  },
+});
+
+const addUser = (userId, socketId) => {
+  if (userId) {
+    !users.some((user) => user.userId === userId) &&
+      users.push({ userId, socketId });
+  }
+  // console.log("users", users);
+};
+
+const getUser = async (userId) => {
+  // console.log("getUser", userId);
+  return await users.find((user) => user.userId === userId);
+};
+
+io.on("connection", (socket) => {
+  // When Connect
+  console.log("A user is connected.");
+
+  socket.on("addUser", (userData) => {
+    addUser(userData, socket.id);
+    console.log(userData, users);
+    io.emit("getUsers", users);
+  });
+
+  socket.on("sendMessage", async (data) => {
+    const user = await getUser(data.receiverId);
+
+    io.to(user.socketId).emit("getMessage", data);
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}.`);
 });

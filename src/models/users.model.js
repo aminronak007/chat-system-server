@@ -146,7 +146,8 @@ class UserModel {
         .populate({
           path: "last_conversation_id",
           populate: {
-            path: "receiverId",
+            path: "participants",
+            match: { _id: { $ne: id } },
             select: "_id first_name last_name email phone userStatus profile",
           },
         })
@@ -154,6 +155,7 @@ class UserModel {
 
       return getUserDetails;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }
@@ -164,6 +166,7 @@ class UserModel {
         { _id: id },
         {
           lastSelectedChat: null,
+          last_conversation_id: null,
         }
       );
       if (updateSelectedChat) {

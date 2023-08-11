@@ -3,7 +3,12 @@ const { ObjectId } = mongoose.Schema.Types;
 
 const ConversationSchema = mongoose.Schema(
   {
-    participants: [{ type: ObjectId, ref: "User" }],
+    participants: [
+      {
+        type: ObjectId,
+        ref: "User",
+      },
+    ],
     isChannel: {
       type: Boolean,
     },
@@ -30,16 +35,15 @@ class ConversationModel {
       const { senderId, receiverId } = input;
 
       const conversation = await Conversations.findOne({
-        senderId,
-        receiverId,
+        participants: { $all: [senderId, receiverId] },
+
         isChannel: { $eq: false },
       }).lean();
 
       console.log(conversation);
       if (!conversation) {
         const newConversation = await Conversations.create({
-          senderId,
-          receiverId,
+          participants: [senderId, receiverId],
           isChannel: false,
         });
 
@@ -84,12 +88,13 @@ class ConversationModel {
   async read(user_id) {
     try {
       const conversations = await Conversations.find({
+        participants: { $in: user_id },
         isChannel: { $eq: false },
-        senderId: user_id,
       })
         .populate({
-          path: "receiverId",
-          select: "_id first_name last_name email mobile status profile",
+          path: "participants",
+          match: { _id: { $ne: user_id } },
+          select: "_id first_name last_name email phone userStatus profile",
         })
         .lean();
 
@@ -99,6 +104,7 @@ class ConversationModel {
 
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }
