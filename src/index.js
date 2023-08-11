@@ -81,6 +81,7 @@ const io = new Server(server, {
       "https://ar-chat-app.onrender.com",
     ],
   },
+  transports: ["websocket"],
 });
 
 const addUser = (userId, socketId) => {
