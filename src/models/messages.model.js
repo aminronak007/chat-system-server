@@ -54,15 +54,34 @@ class MessageModel {
     }
   }
 
-  async read(conversation_id) {
+  async read(conversation_id, queryParams) {
     try {
-      const result = await Message.find({ conversation_id }).lean();
+      let page = queryParams?.page ? parseInt(queryParams?.page) : 1;
+      let limit = queryParams?.limit ? parseInt(queryParams?.limit) : 10;
 
-      if (result.length > 0) {
-        return result;
-      }
-      return false;
+      const totalCount = await Message.countDocuments({ conversation_id });
+      const totalPages = Math.ceil(totalCount / limit);
+
+      // Calculate the number of items to skip
+      const itemsToSkip = (page - 1) * limit;
+
+      const result = await Message.find({ conversation_id })
+        .sort({ _id: -1 })
+        .skip(itemsToSkip)
+        .limit(limit)
+        .lean();
+
+      let data = {
+        result,
+        totalPages,
+        currentPage: page,
+        limit,
+        totalCount,
+      };
+
+      return data;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }

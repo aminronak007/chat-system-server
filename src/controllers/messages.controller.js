@@ -18,12 +18,19 @@ class MessagesController {
 
   async read(req, res) {
     try {
-      const conversation_id = req.params.id;
-      let result = await MessageModel.read(conversation_id);
+      let conversation_id = req.params.id;
 
-      if (!result) {
-        return errorHandler(res, 200, message.NOT_FOUND("Messages"), result);
+      let queryParams = {
+        page: parseInt(req.params.page),
+        limit: parseInt(req.params.limit),
+      };
+
+      let result = await MessageModel.read(conversation_id, queryParams);
+
+      if (result?.result?.length === 0) {
+        return successHandler(res, 200, message.NO_FOUND("Messages"), false);
       }
+
       return successHandler(res, 200, message.NO_FOUND("Messages"), result);
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
