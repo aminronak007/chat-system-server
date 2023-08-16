@@ -156,6 +156,33 @@ class ConversationModel {
       throw new Error(err);
     }
   }
+
+  async getConversationByContactId(contact_id, user_id) {
+    try {
+      console.log(contact_id, user_id);
+      const conversations = await Conversations.find({
+        participants: {
+          $all: [contact_id, user_id],
+        },
+        isChannel: { $eq: false },
+      })
+        .populate({
+          path: "participants",
+          match: { _id: { $eq: contact_id } },
+          select: "_id first_name last_name email phone userStatus profile",
+        })
+        .lean();
+
+      if (conversations?.length > 0) {
+        return conversations;
+      }
+
+      return false;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
+    }
+  }
 }
 
 module.exports = { Conversations, ConversationModel: new ConversationModel() };

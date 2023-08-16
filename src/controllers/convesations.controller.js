@@ -83,6 +83,30 @@ class ConversationsController {
       errorHandler(res, 500, message.ERROR, []);
     }
   }
+
+  async getConversationByContactId(req, res) {
+    try {
+      let contact_id = req.params.contact_id;
+      let user_id = req.user._id;
+
+      let result = await ConversationModel.getConversationByContactId(
+        contact_id,
+        user_id
+      );
+
+      if (!result) {
+        return errorHandler(res, 200, message.NOT_FOUND("Conversations"), {});
+      }
+      return successHandler(
+        res,
+        200,
+        message.NO_FOUND("Conversations"),
+        result
+      );
+    } catch (err) {
+      errorHandler(res, 500, message.ERROR, []);
+    }
+  }
 }
 
 module.exports = new ConversationsController();

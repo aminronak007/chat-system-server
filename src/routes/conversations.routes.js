@@ -6,6 +6,12 @@ router.post("/create", verifyAccessToken, ConversationController.create);
 router.get("/read", verifyAccessToken, ConversationController.read);
 router.delete("/delete", verifyAccessToken, ConversationController.delete);
 
+router.get(
+  "/get/:contact_id",
+  verifyAccessToken,
+  ConversationController.getConversationByContactId
+);
+
 // Routes for Channel or Group chats
 router.post(
   "/create/channel",
