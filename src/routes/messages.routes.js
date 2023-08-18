@@ -5,8 +5,8 @@ const { upload } = require("../middlewares/multer");
 
 router.post(
   "/create",
-  upload.single("file"),
   verifyAccessToken,
+  upload.fields([{ name: "file" }]),
   MessagesController.create
 );
 router.get(

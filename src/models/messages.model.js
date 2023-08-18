@@ -34,6 +34,12 @@ const MessageSchema = mongoose.Schema(
     sent: {
       type: Boolean,
     },
+    images: {
+      type: Array,
+    },
+    attachments: {
+      type: Array,
+    },
   },
   { timestamps: true }
 );
@@ -43,7 +49,27 @@ let Message = mongoose.model("messages", MessageSchema);
 class MessageModel {
   async create(input) {
     try {
-      const result = await Message.create(input);
+      let result = "";
+      let { messageType } = input;
+
+      if (messageType === "text") {
+        result = await Message.create(input);
+      }
+
+      if (messageType === "image") {
+        result = await Message.create({
+          ...input,
+          images: input?.images?.length > 0 && JSON.parse(input.images),
+        });
+      }
+
+      if (messageType === "file") {
+        result = await Message.create({
+          ...input,
+          attachments:
+            input?.attachments?.length > 0 && JSON.parse(input.attachments),
+        });
+      }
 
       if (result) {
         return true;

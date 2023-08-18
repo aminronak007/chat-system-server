@@ -7,8 +7,6 @@ const multerStorage = multer.diskStorage({
       file.fieldname === "profile" ||
       file.fieldname === "coverImage" ||
       file.fieldname === "file"
-      // file.fieldname === "customer_images" ||
-      // file.fieldname === "customer_docs"
     ) {
       if (file.fieldname === "profile") {
         if (!fs.existsSync(`${process.env.UPLOAD_DIR}/profile`)) {
@@ -27,7 +25,9 @@ const multerStorage = multer.diskStorage({
       if (file.fieldname === "file") {
         if (!fs.existsSync(`${process.env.UPLOAD_DIR}/media`)) {
           fs.mkdirSync(`${process.env.UPLOAD_DIR}/media`);
-        } else if (!fs.existsSync(`${process.env.UPLOAD_DIR}/media/images`)) {
+        }
+
+        if (!fs.existsSync(`${process.env.UPLOAD_DIR}/media/images`)) {
           fs.mkdirSync(`${process.env.UPLOAD_DIR}/media/images`);
         } else if (!fs.existsSync(`${process.env.UPLOAD_DIR}/media/pdfs`)) {
           fs.mkdirSync(`${process.env.UPLOAD_DIR}/media/pdfs`);
@@ -72,11 +72,13 @@ const multerStorage = multer.diskStorage({
   },
 
   filename: (req, file, cb) => {
-    let fileExt = file.originalname.split(".").pop();
-    cb(
-      null,
-      Date.now() + "_" + `${file.fieldname}.${fileExt}`.split(" ").join("_")
-    );
+    // let fileExt = file.originalname.split(".").pop();
+    // cb(
+    //   null,
+    //   Date.now() + "_" + `${file.fieldname}.${fileExt}`.split(" ").join("_")
+    // );
+
+    cb(null, file.originalname);
   },
 });
 

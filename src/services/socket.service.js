@@ -26,7 +26,6 @@ const SocketService = () => {
     });
 
     socket.on("sendMessage", async (data) => {
-      console.log("data", data);
       socket.in(data.conversation_id).emit("getMessage", data);
     });
   });
