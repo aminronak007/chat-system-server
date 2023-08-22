@@ -40,6 +40,9 @@ const MessageSchema = mongoose.Schema(
     attachments: {
       type: Array,
     },
+    isDelete: {
+      type: Boolean,
+    },
   },
   { timestamps: true }
 );

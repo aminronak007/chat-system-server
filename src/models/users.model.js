@@ -45,7 +45,7 @@ const UserSchema = mongoose.Schema(
       default: null,
     },
     last_conversation_id: {
-      type: mongoose.Types.ObjectId,
+      type: ObjectId,
       ref: "conversations",
     },
     location: {
