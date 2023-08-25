@@ -14,6 +14,6 @@ router.get(
   verifyAccessToken,
   MessagesController.read
 );
-router.delete("/delete", verifyAccessToken, MessagesController.delete);
+router.post("/delete", verifyAccessToken, MessagesController.delete);
 
 module.exports = router;

@@ -1,8 +1,12 @@
 const mongoose = require("mongoose");
+const fs = require("fs");
 const { ObjectId } = mongoose.Schema.Types;
 
 const MessageSchema = mongoose.Schema(
   {
+    temp_id: {
+      type: String,
+    },
     conversation_id: {
       type: ObjectId,
       ref: "conversations",
@@ -122,8 +126,29 @@ class MessageModel {
     }
   }
 
-  async delete() {
+  async delete(id, tempId, image) {
     try {
+      if (id) {
+        const result = await Message.findOneAndDelete({ _id: id });
+
+        if (result) {
+          return true;
+        }
+      }
+
+      if (tempId) {
+        const result = await Message.findOneAndDelete({ temp_id: tempId });
+
+        if (result) {
+          return true;
+        }
+      }
+
+      if (image) {
+        fs.unlinkSync(`../../${process.env.UPLOAD_DIR}/media/images/${image}`);
+      }
+
+      return false;
     } catch (err) {
       throw new Error(err);
     }

@@ -48,8 +48,10 @@ class MessagesController {
 
   async delete(req, res) {
     try {
-      let result = await MessageModel.delete();
-      return successHandler(res, 200, message.UPDATED("User id"), result);
+      let { id, tempId, images } = req.body;
+      let result = await MessageModel.delete(id, tempId, images);
+
+      return successHandler(res, 200, message.DELETED("Message"), result);
     } catch (err) {
       errorHandler(res, 500, message.ERROR, []);
     }

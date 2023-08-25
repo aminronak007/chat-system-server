@@ -64,13 +64,35 @@ class FriendModel {
         })
         .lean();
 
-      if (result.length > 0) {
-        return result;
+      const groupedData = await this.groupDataByAlphabet(result);
+
+      if (groupedData.length > 0) {
+        return groupedData;
       }
     } catch (err) {
       console.log(err);
       throw new Error(err);
     }
+  }
+
+  // Function to group data by initial alphabet
+  async groupDataByAlphabet(data) {
+    const grouped = {};
+
+    data.forEach((item) => {
+      const initialAlphabet = item.friend_id.first_name.charAt(0).toUpperCase();
+      if (!grouped[initialAlphabet]) {
+        grouped[initialAlphabet] = [];
+      }
+      grouped[initialAlphabet].push(item);
+    });
+
+    const result = [];
+    for (const letter in grouped) {
+      result.push({ letter, data: grouped[letter] });
+    }
+
+    return result;
   }
 
   async example(input) {
