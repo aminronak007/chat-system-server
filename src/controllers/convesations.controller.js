@@ -25,6 +25,7 @@ class ConversationsController {
 
       let result = await ConversationModel.createChannel(input);
 
+      console.log("result", result);
       if (!result) {
         return errorHandler(res, 200, message.EXISTS("Channel"), {});
       }
@@ -93,6 +94,26 @@ class ConversationsController {
         contact_id,
         user_id
       );
+
+      if (!result) {
+        return errorHandler(res, 200, message.NOT_FOUND("Conversations"), {});
+      }
+      return successHandler(
+        res,
+        200,
+        message.NO_FOUND("Conversations"),
+        result
+      );
+    } catch (err) {
+      errorHandler(res, 500, message.ERROR, []);
+    }
+  }
+
+  async getChannels(req, res) {
+    try {
+      let user_id = req.user._id;
+
+      let result = await ConversationModel.getChannels(user_id);
 
       if (!result) {
         return errorHandler(res, 200, message.NOT_FOUND("Conversations"), {});

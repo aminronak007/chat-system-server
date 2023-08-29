@@ -40,7 +40,6 @@ class ConversationModel {
         isChannel: { $eq: false },
       }).lean();
 
-      console.log(conversation);
       if (!conversation) {
         const newConversation = await Conversations.create({
           participants: [senderId, receiverId],
@@ -69,7 +68,7 @@ class ConversationModel {
 
       if (!conversation) {
         const newConversation = await Conversations.create({
-          name: name,
+          name,
           participants: members,
           isChannel: true,
         });
@@ -174,6 +173,30 @@ class ConversationModel {
         .lean();
 
       if (conversations?.length > 0) {
+        return conversations;
+      }
+
+      return false;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
+    }
+  }
+
+  async getChannels(user_id) {
+    try {
+      const conversations = await Conversations.find({
+        participants: { $in: user_id },
+        isChannel: { $eq: true },
+      })
+        .populate({
+          path: "participants",
+          match: { _id: { $ne: user_id } },
+          select: "_id first_name last_name email phone userStatus profile",
+        })
+        .lean();
+
+      if (conversations.length > 0) {
         return conversations;
       }
 

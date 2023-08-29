@@ -13,6 +13,12 @@ router.get(
 );
 
 // Routes for Channel or Group chats
+router.get(
+  "/read/channel",
+  verifyAccessToken,
+  ConversationController.getChannels
+);
+
 router.post(
   "/create/channel",
   verifyAccessToken,
