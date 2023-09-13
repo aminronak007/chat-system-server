@@ -30,13 +30,23 @@ class FriendModel {
     try {
       const { friend_id, status } = input;
 
-      const addFriend = await Friends.create({
-        user_id,
-        friend_id,
-        status,
-      });
+      const findFriend = await Friends.findOne({ user_id, friend_id });
 
-      if (addFriend) {
+      if (!findFriend) {
+        const addFriend = await Friends.create({
+          user_id,
+          friend_id,
+          status,
+        });
+
+        if (addFriend) {
+          return addConversation();
+        }
+      } else {
+        return addConversation();
+      }
+
+      async function addConversation() {
         let senderId = user_id;
         let receiverId = friend_id;
 
@@ -45,12 +55,15 @@ class FriendModel {
           receiverId,
         };
 
-        await ConversationModel.create(data);
-        return true;
+        let newConversationId = await ConversationModel.create(data, true);
+        if (newConversationId) {
+          return newConversationId;
+        }
       }
 
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }

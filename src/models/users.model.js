@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const { signAccessToken } = require("../middlewares/jwt");
 const { unlinkFiles } = require("../helpers/helpers");
 const { ObjectId } = mongoose.Schema.Types;
+const { Conversations } = require("./conversations.model");
 
 const UserSchema = mongoose.Schema(
   {
@@ -279,8 +280,30 @@ class UserModel {
       // let regex = { $regex: `^${input}$`, $options: "i" }; // For Specific Keyword Search
       let regex = { $regex: `^${keyword}`, $options: "i" }; // For Partial Keyword Search
 
+      // Find users who are not in the friends collection
+      const friendDocs = await Conversations.find({
+        participants: { $in: id },
+      });
+      // console.log("friendDocs", friendDocs);
+
+      // const excludedUserIds = friendDocs.map((friend) => {
+      //   console.log("friend", friend);
+      //   if (friend.participants.includes(id)) {
+      //     return participants;
+      //   }
+      // });
+
+      const extractedIds = [];
+
+      friendDocs.forEach((item) => {
+        const filteredParticipants = item.participants.filter(
+          (participantsId) => participantsId.toString() !== id
+        );
+        extractedIds.push(...filteredParticipants);
+      });
+
       const result = await User.find({
-        _id: { $ne: id },
+        $and: [{ _id: { $ne: id } }, { _id: { $nin: extractedIds } }],
         $or: [{ first_name: regex }, { last_name: regex }, { email: regex }],
       })
         .select("first_name last_name email profile")
@@ -295,13 +318,12 @@ class UserModel {
         });
       }
 
-      // console.log(result);
       if (items.length > 0) {
         return items;
       }
-
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }

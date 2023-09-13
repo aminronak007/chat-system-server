@@ -4,7 +4,7 @@ const ConversationController = require("../controllers/convesations.controller")
 
 router.post("/create", verifyAccessToken, ConversationController.create);
 router.get("/read", verifyAccessToken, ConversationController.read);
-router.delete("/delete", verifyAccessToken, ConversationController.delete);
+router.delete("/delete/:id", verifyAccessToken, ConversationController.delete);
 
 router.get(
   "/get/:contact_id",

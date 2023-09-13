@@ -46,6 +46,7 @@ const MessageSchema = mongoose.Schema(
     },
     isDelete: {
       type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
@@ -98,7 +99,7 @@ class MessageModel {
       // Calculate the number of items to skip
       const itemsToSkip = (page - 1) * limit;
 
-      const result = await Message.find({ conversation_id })
+      const result = await Message.find({ conversation_id, isDelete: false })
         .sort({ _id: -1 })
         .skip(itemsToSkip)
         .limit(limit)
@@ -128,20 +129,13 @@ class MessageModel {
 
   async delete(id, tempId, image) {
     try {
-      if (id) {
-        const result = await Message.findOneAndDelete({ _id: id });
+      const result = await Message.findOneAndUpdate(
+        { $or: [{ _id: id }, { temp_id: tempId }] },
+        { isDelete: true }
+      );
 
-        if (result) {
-          return true;
-        }
-      }
-
-      if (tempId) {
-        const result = await Message.findOneAndDelete({ temp_id: tempId });
-
-        if (result) {
-          return true;
-        }
+      if (result) {
+        return true;
       }
 
       if (image) {

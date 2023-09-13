@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema.Types;
+const { Message } = require("./messages.model");
 
 const ConversationSchema = mongoose.Schema(
   {
@@ -23,6 +24,9 @@ const ConversationSchema = mongoose.Schema(
     last_message_at: {
       type: Date,
     },
+    description: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
@@ -30,7 +34,7 @@ const ConversationSchema = mongoose.Schema(
 let Conversations = mongoose.model("conversations", ConversationSchema);
 
 class ConversationModel {
-  async create(input) {
+  async create(input, flag) {
     try {
       const { senderId, receiverId } = input;
 
@@ -47,6 +51,9 @@ class ConversationModel {
         });
 
         if (newConversation) {
+          if (flag) {
+            return newConversation._id;
+          }
           return true;
         }
       }
@@ -60,10 +67,10 @@ class ConversationModel {
 
   async createChannel(input) {
     try {
-      const { members, name } = input;
+      const { members, name, description } = input;
 
       const conversation = await Conversations.findOne({
-        participants: { $all: members },
+        name,
       }).lean();
 
       if (!conversation) {
@@ -71,6 +78,7 @@ class ConversationModel {
           name,
           participants: members,
           isChannel: true,
+          description,
         });
 
         if (newConversation) {
@@ -139,15 +147,20 @@ class ConversationModel {
     }
   }
 
-  async delete(input) {
+  async delete(conversation_id) {
     try {
-      const { conversation_id } = input;
-
       const deleteConversation = await Conversations.deleteOne({
         _id: conversation_id,
       });
 
       if (deleteConversation) {
+        const deleteMessages = await Message.findOneAndDelete({
+          conversation_id,
+        });
+
+        if (deleteMessages) {
+          return true;
+        }
         return true;
       }
       return false;

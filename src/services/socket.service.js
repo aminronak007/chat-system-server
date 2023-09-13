@@ -29,6 +29,12 @@ const SocketService = () => {
   io.on("connection", (socket) => {
     // When Connect
     console.log("Connected to socket.io");
+    socket.on("addUser", (userId) => {
+      addUser(userId);
+      io.emit("getUsers", users);
+    });
+
+    socket.emit("me", socket.id);
 
     socket.on("setup", (userData) => {
       socket.join(userData?._id);
@@ -45,6 +51,22 @@ const SocketService = () => {
 
     socket.on("sendMessage", async (data) => {
       socket.in(data.conversation_id).emit("getMessage", data);
+    });
+
+    socket.on("disconnect", () => {
+      socket.broadcast.emit("call_end");
+    });
+
+    socket.on("call_user", (data) => {
+      io.to(data.userToCall).emit("call_user", {
+        signal: data.signalData,
+        friom: data.from,
+        name: data.name,
+      });
+    });
+
+    socket.on("answer_call", (data) => {
+      io.to(data.to).emit("call_accepted", data.signal);
     });
   });
 };

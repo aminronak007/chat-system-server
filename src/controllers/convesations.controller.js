@@ -25,7 +25,6 @@ class ConversationsController {
 
       let result = await ConversationModel.createChannel(input);
 
-      console.log("result", result);
       if (!result) {
         return errorHandler(res, 200, message.EXISTS("Channel"), {});
       }
@@ -72,9 +71,9 @@ class ConversationsController {
 
   async delete(req, res) {
     try {
-      let input = req.body;
+      let id = req.params.id;
 
-      let result = await ConversationModel.delete(input);
+      let result = await ConversationModel.delete(id);
 
       if (!result) {
         return errorHandler(res, 200, message.NOT_EXISTS("Conversation"), {});
