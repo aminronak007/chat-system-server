@@ -31,18 +31,18 @@ const SocketService = () => {
     console.log("Connected to socket.io");
     socket.on("addUser", (userId) => {
       addUser(userId);
-      io.emit("getUsers", users);
+      // io.emit("getUsers", users);
     });
 
     socket.emit("me", socket.id);
 
     socket.on("setup", (userData) => {
       socket.join(userData?._id);
-      addUser(userData?._id, socket.id);
+      // addUser(userData?._id, socket.id);
       socket.emit("connected");
     });
 
-    io.emit("getUsers", users);
+    // io.emit("getUsers", users);
 
     socket.on("join_chat", (room) => {
       socket.join(room);

@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { verifyAccessToken } = require("../middlewares/jwt");
-const ConversationController = require("../controllers/convesations.controller");
+const ConversationController = require("../controllers/conversations.controller");
 
 router.post("/create", verifyAccessToken, ConversationController.create);
 router.get("/read", verifyAccessToken, ConversationController.read);

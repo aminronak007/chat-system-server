@@ -22,8 +22,9 @@ class ConversationsController {
   async createChannel(req, res) {
     try {
       let input = req.body;
+      let user_id = req.user.id;
 
-      let result = await ConversationModel.createChannel(input);
+      let result = await ConversationModel.createChannel(input, user_id);
 
       if (!result) {
         return errorHandler(res, 200, message.EXISTS("Channel"), {});
@@ -72,14 +73,16 @@ class ConversationsController {
   async delete(req, res) {
     try {
       let id = req.params.id;
+      let user_id = req.user._id;
 
-      let result = await ConversationModel.delete(id);
+      let result = await ConversationModel.delete(id, user_id);
 
       if (!result) {
         return errorHandler(res, 200, message.NOT_EXISTS("Conversation"), {});
       }
       return successHandler(res, 200, message.DELETED("Conversation"), result);
     } catch (err) {
+      console.log(err);
       errorHandler(res, 500, message.ERROR, []);
     }
   }

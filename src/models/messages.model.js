@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const fs = require("fs");
+const { Friends } = require("./friends.model");
 const { ObjectId } = mongoose.Schema.Types;
 
 const MessageSchema = mongoose.Schema(
@@ -58,10 +59,16 @@ class MessageModel {
   async create(input) {
     try {
       let result = "";
-      let { messageType } = input;
+      let { messageType, receiverId } = input;
+
+      const checkFriendOrNot = await Friends.findOne({
+        friend_id: receiverId,
+      }).lean();
 
       if (messageType === "text") {
-        result = await Message.create(input);
+        result = await Message.create({
+          ...input,
+        });
       }
 
       if (messageType === "image") {
@@ -84,6 +91,7 @@ class MessageModel {
       }
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }

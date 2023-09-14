@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema.Types;
-const { ConversationModel } = require("./conversations.model");
 
 const FriendsSchema = mongoose.Schema(
   {
@@ -40,25 +39,10 @@ class FriendModel {
         });
 
         if (addFriend) {
-          return addConversation();
+          return true;
         }
       } else {
-        return addConversation();
-      }
-
-      async function addConversation() {
-        let senderId = user_id;
-        let receiverId = friend_id;
-
-        let data = {
-          senderId,
-          receiverId,
-        };
-
-        let newConversationId = await ConversationModel.create(data, true);
-        if (newConversationId) {
-          return newConversationId;
-        }
+        return true;
       }
 
       return false;

@@ -27,6 +27,12 @@ const ConversationSchema = mongoose.Schema(
     description: {
       type: String,
     },
+    deleteParticipants: [
+      {
+        type: ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -34,13 +40,12 @@ const ConversationSchema = mongoose.Schema(
 let Conversations = mongoose.model("conversations", ConversationSchema);
 
 class ConversationModel {
-  async create(input, flag) {
+  async create(input) {
     try {
       const { senderId, receiverId } = input;
 
       const conversation = await Conversations.findOne({
         participants: { $all: [senderId, receiverId] },
-
         isChannel: { $eq: false },
       }).lean();
 
@@ -51,10 +56,16 @@ class ConversationModel {
         });
 
         if (newConversation) {
-          if (flag) {
-            return newConversation._id;
-          }
-          return true;
+          return this.getConversationData(newConversation, senderId);
+        }
+      } else {
+        const newConversation = await Conversations.findOneAndUpdate(
+          { _id: conversation?._id },
+          { $pull: { deleteParticipants: senderId } }
+        );
+
+        if (newConversation) {
+          return this.getConversationData(newConversation, senderId);
         }
       }
       return false;
@@ -65,7 +76,22 @@ class ConversationModel {
     }
   }
 
-  async createChannel(input) {
+  async getConversationData(newConversation, senderId) {
+    const conversationsData = await Conversations.findOne({
+      _id: newConversation?._id,
+      isChannel: { $eq: false },
+    })
+      .populate({
+        path: "participants",
+        match: { _id: { $ne: senderId } },
+        select: "_id first_name last_name email phone userStatus profile",
+      })
+      .lean();
+
+    return conversationsData;
+  }
+
+  async createChannel(input, user_id) {
     try {
       const { members, name, description } = input;
 
@@ -82,7 +108,18 @@ class ConversationModel {
         });
 
         if (newConversation) {
-          return true;
+          const conversationsData = await Conversations.findOne({
+            _id: newConversation?._id,
+            isChannel: { $eq: true },
+          })
+            .populate({
+              path: "participants",
+              match: { _id: { $ne: user_id } },
+              select: "_id first_name last_name email phone userStatus profile",
+            })
+            .lean();
+
+          return conversationsData;
         }
       }
 
@@ -97,6 +134,7 @@ class ConversationModel {
       const conversations = await Conversations.find({
         participants: { $in: user_id },
         isChannel: { $eq: false },
+        deleteParticipants: { $nin: user_id },
       })
         .populate({
           path: "participants",
@@ -147,24 +185,42 @@ class ConversationModel {
     }
   }
 
-  async delete(conversation_id) {
+  async delete(conversation_id, user_id) {
     try {
-      const deleteConversation = await Conversations.deleteOne({
+      const updateConversation = await Conversations.findOneAndUpdate(
+        {
+          _id: conversation_id,
+        },
+        { $push: { deleteParticipants: user_id } }
+      );
+
+      const findConversation = await Conversations.findOne({
         _id: conversation_id,
       });
 
-      if (deleteConversation) {
-        const deleteMessages = await Message.findOneAndDelete({
-          conversation_id,
-        });
+      if (updateConversation) {
+        if (
+          updateConversation.participants.length ===
+          findConversation.deleteParticipants.length
+        ) {
+          const deleteConversation = await Conversations.findOneAndDelete({
+            _id: conversation_id,
+          });
+          if (deleteConversation) {
+            const deleteMessages = await Message.findOneAndDelete({
+              conversation_id,
+            });
 
-        if (deleteMessages) {
-          return true;
+            if (deleteMessages) {
+              return true;
+            }
+          }
         }
         return true;
       }
       return false;
     } catch (err) {
+      console.log(err);
       throw new Error(err);
     }
   }
