@@ -257,6 +257,7 @@ class ConversationModel {
       const conversations = await Conversations.find({
         participants: { $in: user_id },
         isChannel: { $eq: true },
+        deleteParticipants: { $nin: user_id },
       })
         .populate({
           path: "participants",
