@@ -64,10 +64,10 @@ const UserAdminRoutes = require("./routes/admin/users.routes");
 app.use("/api/v1/admin/users", UserAdminRoutes);
 // ------- Admin Routes -------
 
-app.use("/", express.static(__dirname.replace("/src", "") + "/public"));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname.replace("/src", ""), "public/index.html"));
-});
+// app.use("/", express.static(__dirname.replace("/src", "") + "/public"));
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname.replace("/src", ""), "public/index.html"));
+// });
 
 SocketService();
 app.listen(PORT, () => {
