@@ -33,6 +33,10 @@ const ConversationSchema = mongoose.Schema(
         ref: "User",
       },
     ],
+    isArchive: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -77,18 +81,23 @@ class ConversationModel {
   }
 
   async getConversationData(newConversation, senderId) {
-    const conversationsData = await Conversations.findOne({
-      _id: newConversation?._id,
-      isChannel: { $eq: false },
-    })
-      .populate({
-        path: "participants",
-        match: { _id: { $ne: senderId } },
-        select: "_id first_name last_name email phone userStatus profile",
+    try {
+      const conversationsData = await Conversations.findOne({
+        _id: newConversation?._id,
+        isChannel: { $eq: false },
       })
-      .lean();
+        .populate({
+          path: "participants",
+          match: { _id: { $ne: senderId } },
+          select: "_id first_name last_name email phone userStatus profile",
+        })
+        .lean();
 
-    return conversationsData;
+      return conversationsData;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
+    }
   }
 
   async createChannel(input, user_id) {
@@ -135,6 +144,7 @@ class ConversationModel {
         participants: { $in: user_id },
         isChannel: { $eq: false },
         deleteParticipants: { $nin: user_id },
+        isArchive: { $eq: false },
       })
         .populate({
           path: "participants",
@@ -227,7 +237,6 @@ class ConversationModel {
 
   async getConversationByContactId(contact_id, user_id) {
     try {
-      console.log(contact_id, user_id);
       const conversations = await Conversations.find({
         participants: {
           $all: [contact_id, user_id],
@@ -258,6 +267,7 @@ class ConversationModel {
         participants: { $in: user_id },
         isChannel: { $eq: true },
         deleteParticipants: { $nin: user_id },
+        isArchive: { $eq: false },
       })
         .populate({
           path: "participants",
@@ -268,6 +278,57 @@ class ConversationModel {
 
       if (conversations.length > 0) {
         return conversations;
+      }
+
+      return false;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
+    }
+  }
+
+  async archiveConversation(conversation_id) {
+    try {
+      const checkConversationExist = await Conversations.findOne({
+        _id: conversation_id,
+      }).lean();
+
+      if (checkConversationExist) {
+        const archiveConversation = await Conversations.findOneAndUpdate(
+          { _id: conversation_id },
+          { isArchive: !checkConversationExist.isArchive }
+        );
+
+        if (archiveConversation) {
+          let data = {
+            isArchive: !checkConversationExist.isArchive,
+          };
+          return data;
+        }
+      }
+      return false;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
+    }
+  }
+
+  async getArchiveConversation(user_id) {
+    try {
+      const archiveConversations = await Conversations.find({
+        participants: { $in: user_id },
+        isArchive: true,
+        deleteParticipants: { $nin: user_id },
+      })
+        .populate({
+          path: "participants",
+          match: { _id: { $ne: user_id } },
+          select: "_id first_name last_name email phone userStatus profile",
+        })
+        .lean();
+
+      if (archiveConversations) {
+        return archiveConversations;
       }
 
       return false;

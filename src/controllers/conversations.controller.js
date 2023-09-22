@@ -22,7 +22,7 @@ class ConversationsController {
   async createChannel(req, res) {
     try {
       let input = req.body;
-      let user_id = req.user.id;
+      let user_id = req.user._id;
 
       let result = await ConversationModel.createChannel(input, user_id);
 
@@ -127,6 +127,51 @@ class ConversationsController {
         result
       );
     } catch (err) {
+      errorHandler(res, 500, message.ERROR, []);
+    }
+  }
+
+  async archiveConversation(req, res) {
+    try {
+      let conversation_id = req.params.id;
+      let result = await ConversationModel.archiveConversation(conversation_id);
+
+      if (!result) {
+        return errorHandler(res, 200, message.SOMETHING_WENT_WRONG, {});
+      }
+
+      let messageData = "Conversation unarchive";
+      if (result.isArchive) {
+        messageData = "Conversation archive";
+      }
+      return successHandler(res, 200, message.SUCCESS(messageData), result);
+    } catch (err) {
+      console.log(err);
+      errorHandler(res, 500, message.ERROR, []);
+    }
+  }
+
+  async getArchiveConversation(req, res) {
+    try {
+      let user_id = req.user._id;
+      let result = await ConversationModel.getArchiveConversation(user_id);
+
+      if (!result) {
+        return errorHandler(
+          res,
+          200,
+          message.NOT_FOUND("Archive conversations"),
+          {}
+        );
+      }
+      return successHandler(
+        res,
+        200,
+        message.NO_FOUND("Archive conversations"),
+        result
+      );
+    } catch (err) {
+      console.log(err);
       errorHandler(res, 500, message.ERROR, []);
     }
   }

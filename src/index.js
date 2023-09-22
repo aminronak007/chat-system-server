@@ -5,9 +5,9 @@ const globalVariablesFunction = require("./utils/global_vars_and_funcs");
 const dbConnection = require("./config/mongodb.config");
 const expressValidator = require("express-validator");
 const mongoSanitize = require("express-mongo-sanitize");
-// const morgan = require("morgan");
-// const { logs } = require("./utils/vars");
-// const fs = require("fs");
+const morgan = require("morgan");
+const { logs } = require("./utils/vars");
+const fs = require("fs");
 const path = require("path");
 const SocketService = require("./services/socket.service");
 
@@ -22,8 +22,7 @@ const corsOptions = {
   origin: [
     "http://localhost:3000",
     "http://192.168.48.1:3000",
-    "https://ar-chat-app.netlify.app",
-    "https://ar-chat-app.onrender.com",
+    "https://14ff-2405-201-200f-329a-b88e-5755-9-ef1b.ngrok-free.app",
   ],
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
@@ -34,12 +33,15 @@ app.use(cors(corsOptions));
 app.use(mongoSanitize());
 app.use(express.static("uploads"));
 
-// let accessLogStream = fs.createWriteStream(
-//   __dirname + "/logs/" + "access.log",
-//   { flags: "a" }
-// );
+if (!fs.existsSync(`${__dirname}/logs`)) {
+  fs.mkdirSync(`${__dirname}/logs`);
+}
+let accessLogStream = fs.createWriteStream(
+  __dirname + "/logs/" + "access.log",
+  { flags: "a" }
+);
 
-// app.use(morgan(logs, { stream: accessLogStream }));
+app.use(morgan(logs, { stream: accessLogStream }));
 
 // ------- Front Routes -------
 const AuthRoutes = require("./routes/auth.routes");

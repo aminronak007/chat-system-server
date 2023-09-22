@@ -30,4 +30,15 @@ router.put(
   ConversationController.updateChannel
 );
 
+router.get(
+  "/archive",
+  verifyAccessToken,
+  ConversationController.getArchiveConversation
+);
+router.put(
+  "/archive/:id",
+  verifyAccessToken,
+  ConversationController.archiveConversation
+);
+
 module.exports = router;

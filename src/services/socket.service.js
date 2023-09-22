@@ -26,19 +26,23 @@ const SocketService = () => {
     return user;
   };
 
+  const removeUser = (userId) => {
+    users = users.filter((user) => user.userId !== userId);
+  };
+
   io.on("connection", (socket) => {
     // When Connect
     console.log("Connected to socket.io");
-    socket.on("addUser", (userId) => {
-      addUser(userId);
-      // io.emit("getUsers", users);
+    socket.on("addUser", (user) => {
+      console.log("A user is online", user?._id);
+      addUser(user?._id);
+      io.emit("getUsers", users);
     });
 
     socket.emit("me", socket.id);
 
     socket.on("setup", (userData) => {
       socket.join(userData?._id);
-      // addUser(userData?._id, socket.id);
       socket.emit("connected");
     });
 
@@ -46,6 +50,7 @@ const SocketService = () => {
 
     socket.on("join_chat", (room) => {
       socket.join(room);
+      io.emit("getUsers", users);
       console.log("User joined room: ", room);
     });
 
@@ -53,20 +58,10 @@ const SocketService = () => {
       socket.in(data.conversation_id).emit("getMessage", data);
     });
 
-    socket.on("disconnect", () => {
-      socket.broadcast.emit("call_end");
-    });
-
-    socket.on("call_user", (data) => {
-      io.to(data.userToCall).emit("call_user", {
-        signal: data.signalData,
-        friom: data.from,
-        name: data.name,
-      });
-    });
-
-    socket.on("answer_call", (data) => {
-      io.to(data.to).emit("call_accepted", data.signal);
+    socket.on("userOffline", (user) => {
+      console.log("A user is offline: ", user?._id);
+      removeUser(user?._id);
+      io.emit("getUsers", users);
     });
   });
 };
