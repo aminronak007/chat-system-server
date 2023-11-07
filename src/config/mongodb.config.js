@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const dbConnection = () => {
-  return new Promise((resolve, reject) => {
+const dbConnection = async () => {
+  return await new Promise((resolve, reject) => {
     mongoose.set("strictQuery", true);
     mongoose
-      .connect(vars.mongo_uri, {
+      .connect(process.env.MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       })

@@ -19,17 +19,13 @@ const PORT = vars.port;
 
 app.use(expressValidator());
 const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "http://192.168.48.1:3000",
-    "https://14ff-2405-201-200f-329a-b88e-5755-9-ef1b.ngrok-free.app",
-  ],
+  origin: ["http://localhost:3000", "http://localhost:3001"],
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
+app.use(cors(corsOptions));
 
 app.use(express.json());
-app.use(cors(corsOptions));
 app.use(mongoSanitize());
 app.use(express.static("uploads"));
 
@@ -51,6 +47,10 @@ const SettingsRoutes = require("./routes/settings.routes");
 const ConversationRoutes = require("./routes/conversations.routes");
 const FriendsRouter = require("./routes/friends.routes");
 const MessagesRouter = require("./routes/messages.routes");
+
+app.get("/", (req, res) => {
+  res.send("Welcone CSB Backebnd with Node.js, Socket and Docker.");
+});
 
 // ------- Front Routes -------
 app.use("/api/v1/auth", AuthRoutes);
