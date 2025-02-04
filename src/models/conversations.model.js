@@ -337,6 +337,27 @@ class ConversationModel {
       throw new Error(err);
     }
   }
+
+  async getCommonGroupsByCid(user_id) {
+    try {
+      const commonGroups = await Conversations.find({
+        participants: { $in: user_id },
+        isChannel: true,
+        deleteParticipants: { $nin: user_id },
+      })
+        .select("name")
+        .lean();
+
+      if (commonGroups) {
+        return commonGroups;
+      }
+
+      return false;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
+    }
+  }
 }
 
 module.exports = { Conversations, ConversationModel: new ConversationModel() };

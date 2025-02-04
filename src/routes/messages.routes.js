@@ -15,5 +15,10 @@ router.get(
   MessagesController.read
 );
 router.post("/delete", verifyAccessToken, MessagesController.delete);
+router.get(
+  "/chat-user/media/get",
+  verifyAccessToken,
+  MessagesController.getMediaByChatUserId
+);
 
 module.exports = router;

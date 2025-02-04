@@ -155,6 +155,20 @@ class MessageModel {
       throw new Error(err);
     }
   }
+
+  async getMediaByChatUserId(id) {
+    try {
+      const result = await User.findOne({ _id: id }).select(user_fields).lean();
+
+      if (result) {
+        return result;
+      }
+
+      return false;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
 }
 
 module.exports = { Message, MessageModel: new MessageModel() };

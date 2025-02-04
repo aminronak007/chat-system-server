@@ -56,6 +56,20 @@ class MessagesController {
       errorHandler(res, 500, message.ERROR, []);
     }
   }
+
+  async getMediaByChatUserId(req, res) {
+    try {
+      const result = await UserModel.getMediaByChatUserId(req.params.id);
+
+      if (!result) {
+        return errorHandler(res, 200, message.NOT_FOUND("User"), {});
+      }
+
+      return successHandler(res, 200, message.SUCCESS("User Found"), result);
+    } catch (err) {
+      errorHandler(res, 500, message.ERROR, []);
+    }
+  }
 }
 
 module.exports = new MessagesController();

@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const { signAccessToken } = require("../middlewares/jwt");
 const { unlinkFiles } = require("../helpers/helpers");
 const { ObjectId } = mongoose.Schema.Types;
-const { Conversations } = require("./conversations.model");
 
 const UserSchema = mongoose.Schema(
   {

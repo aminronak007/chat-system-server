@@ -175,6 +175,26 @@ class ConversationsController {
       errorHandler(res, 500, message.ERROR, []);
     }
   }
+
+  async getCommonGroupsByCid(req, res) {
+    try {
+      let user_id = req.user._id;
+      let result = await ConversationModel.getCommonGroupsByCid(user_id);
+
+      if (!result) {
+        return errorHandler(res, 200, message.NOT_FOUND("Common groups"), {});
+      }
+      return successHandler(
+        res,
+        200,
+        message.NO_FOUND("Common groups"),
+        result
+      );
+    } catch (err) {
+      console.log(err);
+      errorHandler(res, 500, message.ERROR, []);
+    }
+  }
 }
 
 module.exports = new ConversationsController();

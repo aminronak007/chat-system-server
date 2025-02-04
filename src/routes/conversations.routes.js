@@ -40,5 +40,10 @@ router.put(
   verifyAccessToken,
   ConversationController.archiveConversation
 );
+router.get(
+  "/groups/common/:c_id",
+  verifyAccessToken,
+  ConversationController.getCommonGroupsByCid
+);
 
 module.exports = router;
