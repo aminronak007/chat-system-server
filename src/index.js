@@ -71,7 +71,9 @@ app.use("/api/v1/admin/users", UserAdminRoutes);
 //   res.sendFile(path.join(__dirname.replace("/src", ""), "public/index.html"));
 // });
 
-SocketService();
-app.listen(PORT, () => {
+const http = require("http");
+const server = http.createServer(app);
+SocketService(server);
+server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}.`);
 });

@@ -1,9 +1,8 @@
 const { Server } = require("socket.io");
-const server = require("../config/socket.config");
 const vars = require("../utils/vars");
 
 let users = vars.users;
-const SocketService = () => {
+const SocketService = (server) => {
   const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
